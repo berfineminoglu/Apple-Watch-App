@@ -9,12 +9,18 @@
 /* Begin PBXBuildFile section */
 		11111111111111111111111F /* VestelMulticookerWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111111C /* VestelMulticookerWatchApp.swift */; };
 		111111111111111111111120 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11111111111111111111111D /* ContentView.swift */; };
+		111111111111111111111123 /* et-sote.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111126 /* et-sote.jpeg */; };
+		111111111111111111111124 /* taze-fasulye.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111127 /* taze-fasulye.jpeg */; };
+		111111111111111111111125 /* kabak-yemegi.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111128 /* kabak-yemegi.jpeg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		11111111111111111111111C /* VestelMulticookerWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VestelMulticookerWatchApp.swift; sourceTree = "<group>"; };
 		11111111111111111111111D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		11111111111111111111111E /* VestelMulticookerWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VestelMulticookerWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		111111111111111111111126 /* et-sote.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = et-sote.jpeg; path = et-sote.jpeg; sourceTree = "<group>"; };
+		111111111111111111111127 /* taze-fasulye.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = taze-fasulye.jpeg; path = taze-fasulye.jpeg; sourceTree = "<group>"; };
+		111111111111111111111128 /* kabak-yemegi.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = kabak-yemegi.jpeg; path = kabak-yemegi.jpeg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -25,6 +31,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		111111111111111111111130 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				111111111111111111111123 /* et-sote.jpeg in Resources */,
+				111111111111111111111124 /* taze-fasulye.jpeg in Resources */,
+				111111111111111111111125 /* kabak-yemegi.jpeg in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -32,6 +48,7 @@
 			isa = PBXGroup;
 			children = (
 				11111111111111111111111A /* Sources */,
+				111111111111111111111129 /* Resources */,
 				11111111111111111111111B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -53,6 +70,16 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		111111111111111111111129 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				111111111111111111111126 /* et-sote.jpeg */,
+				111111111111111111111127 /* taze-fasulye.jpeg */,
+				111111111111111111111128 /* kabak-yemegi.jpeg */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -62,6 +89,7 @@
 			buildPhases = (
 				111111111111111111111122 /* Sources */,
 				111111111111111111111121 /* Frameworks */,
+				111111111111111111111130 /* Resources */,
 			);
 			buildRules = (
 			);

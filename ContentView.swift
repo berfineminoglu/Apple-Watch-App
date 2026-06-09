@@ -128,6 +128,14 @@ enum Recipe: String, CaseIterable, Identifiable {
         }
     }
 
+    var imageName: String {
+        switch self {
+        case .etSote: return "et-sote"
+        case .tazeFasulye: return "taze-fasulye"
+        case .kabakYemegi: return "kabak-yemegi"
+        }
+    }
+
     var duration: String {
         switch self {
         case .etSote: return "30 dk"
@@ -332,7 +340,7 @@ struct RecipeButtonRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            RecipeThumbnail(recipe: recipe, size: 24)
+            RecipeThumbnail(recipe: recipe, size: 26)
             Text(recipe.title)
                 .font(.system(size: 16, weight: .medium, design: .rounded))
                 .foregroundStyle(.white)
@@ -1146,7 +1154,7 @@ struct RecipeHeaderCard: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            RecipeThumbnail(recipe: recipe, size: 34)
+            RecipeThumbnail(recipe: recipe, size: 40)
                 .overlay(
                     Circle()
                         .stroke(Color.white.opacity(0.22), lineWidth: 1)
@@ -1183,7 +1191,7 @@ struct RecipeConfirmationCard: View {
                 .frame(height: 52)
 
             HStack(spacing: 10) {
-                RecipeThumbnail(recipe: recipe, size: 34)
+                RecipeThumbnail(recipe: recipe, size: 40)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(recipe.title)
                         .font(.system(size: 18, weight: .semibold, design: .rounded))
@@ -1211,11 +1219,15 @@ struct RecipeThumbnail: View {
             Circle()
                 .fill(backgroundGradient)
 
-            Circle()
-                .fill(Color.white.opacity(0.08))
-                .scaleEffect(0.84)
-
-            artwork
+            Image(recipe.imageName)
+                .resizable()
+                .scaledToFill()
+                .frame(width: size * 0.92, height: size * 0.92)
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .fill(Color.white.opacity(0.08))
+                )
 
             Circle()
                 .stroke(Color.white.opacity(0.18), lineWidth: max(1, size * 0.04))
@@ -1248,61 +1260,4 @@ struct RecipeThumbnail: View {
         }
     }
 
-    @ViewBuilder
-    private var artwork: some View {
-        GeometryReader { proxy in
-            let s = proxy.size.width
-            ZStack {
-                switch recipe {
-                case .etSote:
-                    Group {
-                        ForEach(0..<7, id: \.self) { index in
-                            RoundedRectangle(cornerRadius: s * 0.09, style: .continuous)
-                                .fill(index.isMultiple(of: 2) ? Color(red: 0.82, green: 0.35, blue: 0.16) : Color(red: 0.95, green: 0.64, blue: 0.20))
-                                .frame(width: s * 0.18, height: s * 0.10)
-                                .rotationEffect(.degrees(Double(index) * 18 - 18))
-                                .offset(x: CGFloat(index % 3) * s * 0.07 - s * 0.12, y: CGFloat(index / 3) * s * 0.04 - s * 0.05)
-                        }
-                        Capsule()
-                            .fill(Color(red: 0.13, green: 0.60, blue: 0.20))
-                            .frame(width: s * 0.22, height: s * 0.09)
-                            .offset(x: s * 0.12, y: -s * 0.09)
-                        Circle()
-                            .fill(Color(red: 0.96, green: 0.85, blue: 0.35))
-                            .frame(width: s * 0.12, height: s * 0.12)
-                            .offset(x: -s * 0.15, y: s * 0.12)
-                    }
-                case .tazeFasulye:
-                    Group {
-                        ForEach(0..<8, id: \.self) { index in
-                            Capsule()
-                                .fill(index.isMultiple(of: 2) ? Color(red: 0.42, green: 0.77, blue: 0.24) : Color(red: 0.21, green: 0.58, blue: 0.16))
-                                .frame(width: s * 0.20, height: s * 0.08)
-                                .rotationEffect(.degrees(Double(index) * 15 - 30))
-                                .offset(x: CGFloat(index % 4) * s * 0.03 - s * 0.14, y: CGFloat(index / 4) * s * 0.08 - s * 0.06)
-                        }
-                        Circle()
-                            .fill(Color(red: 0.93, green: 0.56, blue: 0.22))
-                            .frame(width: s * 0.12, height: s * 0.12)
-                            .offset(x: s * 0.10, y: s * 0.10)
-                    }
-                case .kabakYemegi:
-                    Group {
-                        ForEach(0..<6, id: \.self) { index in
-                            RoundedRectangle(cornerRadius: s * 0.08, style: .continuous)
-                                .fill(index.isMultiple(of: 2) ? Color(red: 0.70, green: 0.84, blue: 0.36) : Color(red: 0.97, green: 0.78, blue: 0.28))
-                                .frame(width: s * 0.18, height: s * 0.10)
-                                .rotationEffect(.degrees(Double(index) * 22 - 20))
-                                .offset(x: CGFloat(index % 3) * s * 0.05 - s * 0.10, y: CGFloat(index / 3) * s * 0.06 - s * 0.05)
-                        }
-                        Circle()
-                            .fill(Color(red: 0.98, green: 0.92, blue: 0.56))
-                            .frame(width: s * 0.12, height: s * 0.12)
-                            .offset(x: s * 0.10, y: -s * 0.10)
-                    }
-                }
-            }
-            .frame(width: s, height: s)
-        }
-    }
 }
