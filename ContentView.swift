@@ -6,90 +6,29 @@ private func playTapFeedback(_ haptic: WKHapticType = .click) {
 }
 
 struct ContentView: View {
-    enum WatchPage: Int, CaseIterable {
-        case choose
-        case recipes
+    private enum RootScreen {
+        case launch
+        case recipePager
         case detail
         case cooking
+    }
+
+    private enum RecipePagerPage: Int {
+        case choose
+        case recipes
         case notifications
     }
 
-    @State private var selection: WatchPage = .choose
+    @State private var screen: RootScreen = .launch
+    @State private var recipePagerSelection: RecipePagerPage = .recipes
     @State private var selectedRecipe: Recipe = .etSote
     @State private var showLaunchSplash = true
     @State private var didScheduleSplashDismissal = false
 
     var body: some View {
         ZStack {
-            TabView(selection: $selection) {
-                ChooseRecipePage(
-                    onChoose: {
-                        playTapFeedback()
-                        withAnimation(.easeInOut(duration: 0.28)) {
-                            selection = .recipes
-                        }
-                    }
-                )
-                .tag(WatchPage.choose)
-
-                RecipesPage(
-                    selectedRecipe: $selectedRecipe,
-                    onContinue: {
-                        playTapFeedback()
-                        withAnimation(.easeInOut(duration: 0.28)) {
-                            selection = .detail
-                        }
-                    }
-                )
-                .tag(WatchPage.recipes)
-
-                DetailPage(
-                    recipe: selectedRecipe,
-                    onBack: {
-                        playTapFeedback()
-                        withAnimation(.easeInOut(duration: 0.28)) {
-                            selection = .recipes
-                        }
-                    },
-                    onContinue: {
-                        playTapFeedback()
-                        withAnimation(.easeInOut(duration: 0.28)) {
-                            selection = .cooking
-                        }
-                    }
-                )
-                .tag(WatchPage.detail)
-
-                CookingPage(
-                    recipe: selectedRecipe,
-                    onNotifications: {
-                        playTapFeedback()
-                        withAnimation(.easeInOut(duration: 0.28)) {
-                            selection = .notifications
-                        }
-                    }
-                )
-                .tag(WatchPage.cooking)
-
-                NotificationsPage(
-                    recipe: selectedRecipe,
-                    onOpenRecipe: {
-                        playTapFeedback()
-                        withAnimation(.easeInOut(duration: 0.28)) {
-                            selection = .detail
-                        }
-                    },
-                    onReturnToCooking: {
-                        playTapFeedback()
-                        withAnimation(.easeInOut(duration: 0.28)) {
-                            selection = .cooking
-                        }
-                    }
-                )
-                .tag(WatchPage.notifications)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .background(Color.black.ignoresSafeArea())
+            Color.black.ignoresSafeArea()
+            screenView
 
             if showLaunchSplash {
                 LogoPage()
@@ -109,6 +48,92 @@ struct ContentView: View {
             }
         }
     }
+
+    @ViewBuilder
+    private var screenView: some View {
+        switch screen {
+        case .launch:
+            ChooseRecipePage(
+                onChoose: {
+                    playTapFeedback()
+                    withAnimation(.easeInOut(duration: 0.28)) {
+                        recipePagerSelection = .recipes
+                        screen = .recipePager
+                    }
+                }
+            )
+        case .recipePager:
+            TabView(selection: $recipePagerSelection) {
+                ChooseRecipePage(
+                    onChoose: {
+                        playTapFeedback()
+                        withAnimation(.easeInOut(duration: 0.28)) {
+                            recipePagerSelection = .recipes
+                        }
+                    }
+                )
+                .tag(RecipePagerPage.choose)
+
+                RecipesPage(
+                    selectedRecipe: $selectedRecipe,
+                    onContinue: {
+                        playTapFeedback()
+                        withAnimation(.easeInOut(duration: 0.28)) {
+                            screen = .detail
+                        }
+                    }
+                )
+                .tag(RecipePagerPage.recipes)
+
+                NotificationsPage(
+                    recipe: selectedRecipe,
+                    onOpenRecipe: {
+                        playTapFeedback()
+                        withAnimation(.easeInOut(duration: 0.28)) {
+                            screen = .detail
+                        }
+                    },
+                    onReturnToCooking: {
+                        playTapFeedback()
+                        withAnimation(.easeInOut(duration: 0.28)) {
+                            screen = .cooking
+                        }
+                    }
+                )
+                .tag(RecipePagerPage.notifications)
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .background(Color.black.ignoresSafeArea())
+        case .detail:
+            DetailPage(
+                recipe: selectedRecipe,
+                onBack: {
+                    playTapFeedback()
+                    withAnimation(.easeInOut(duration: 0.28)) {
+                        recipePagerSelection = .recipes
+                        screen = .recipePager
+                    }
+                },
+                onContinue: {
+                    playTapFeedback()
+                    withAnimation(.easeInOut(duration: 0.28)) {
+                        screen = .cooking
+                    }
+                }
+            )
+        case .cooking:
+            CookingPage(
+                recipe: selectedRecipe,
+                onNotifications: {
+                    playTapFeedback()
+                    withAnimation(.easeInOut(duration: 0.28)) {
+                        recipePagerSelection = .notifications
+                        screen = .recipePager
+                    }
+                }
+            )
+        }
+    }
 }
 
 // MARK: - Recipe Model
@@ -117,6 +142,9 @@ enum Recipe: String, CaseIterable, Identifiable {
     case etSote
     case tazeFasulye
     case kabakYemegi
+    case garniturluPilav
+    case humus
+    case mercimekCorbasi
 
     var id: String { rawValue }
 
@@ -125,6 +153,9 @@ enum Recipe: String, CaseIterable, Identifiable {
         case .etSote: return "Et Sote"
         case .tazeFasulye: return "Taze Fasulye"
         case .kabakYemegi: return "Kabak Yemeği"
+        case .garniturluPilav: return "Garnitürlü Pilav"
+        case .humus: return "Humus"
+        case .mercimekCorbasi: return "Mercimek Çorbası"
         }
     }
 
@@ -133,6 +164,9 @@ enum Recipe: String, CaseIterable, Identifiable {
         case .etSote: return "et-sote"
         case .tazeFasulye: return "taze-fasulye"
         case .kabakYemegi: return "kabak-yemegi"
+        case .garniturluPilav: return "garniturlu-pilav"
+        case .humus: return "humus"
+        case .mercimekCorbasi: return "mercimek-corbasi"
         }
     }
 
@@ -141,6 +175,9 @@ enum Recipe: String, CaseIterable, Identifiable {
         case .etSote: return "30 dk"
         case .tazeFasulye: return "26 dk"
         case .kabakYemegi: return "22 dk"
+        case .garniturluPilav: return "18 dk"
+        case .humus: return "12 dk"
+        case .mercimekCorbasi: return "25 dk"
         }
     }
 
@@ -149,6 +186,9 @@ enum Recipe: String, CaseIterable, Identifiable {
         case .etSote: return 30
         case .tazeFasulye: return 26
         case .kabakYemegi: return 22
+        case .garniturluPilav: return 18
+        case .humus: return 12
+        case .mercimekCorbasi: return 25
         }
     }
 
@@ -161,6 +201,9 @@ enum Recipe: String, CaseIterable, Identifiable {
         case .etSote: return "400 cal"
         case .tazeFasulye: return "220 cal"
         case .kabakYemegi: return "180 cal"
+        case .garniturluPilav: return "280 cal"
+        case .humus: return "160 cal"
+        case .mercimekCorbasi: return "150 cal"
         }
     }
 
@@ -169,6 +212,9 @@ enum Recipe: String, CaseIterable, Identifiable {
         case .etSote: return "21 dk"
         case .tazeFasulye: return "18 dk"
         case .kabakYemegi: return "14 dk"
+        case .garniturluPilav: return "12 dk"
+        case .humus: return "8 dk"
+        case .mercimekCorbasi: return "16 dk"
         }
     }
 
@@ -197,6 +243,12 @@ enum Recipe: String, CaseIterable, Identifiable {
             return ["500 g taze fasulye", "Domates, soğan", "Zeytinyağı, tuz"]
         case .kabakYemegi:
             return ["3 kabak", "Havuç, dereotu", "Yoğurtlu servis"]
+        case .garniturluPilav:
+            return ["1 su bardağı pirinç", "Garnitür, bezelye", "Tereyağı, tuz"]
+        case .humus:
+            return ["2 su bardağı nohut", "Tahin, limon, sarımsak", "Zeytinyağı, kimyon"]
+        case .mercimekCorbasi:
+            return ["1 su bardağı kırmızı mercimek", "Soğan, havuç", "Salça, tereyağı, baharat"]
         }
     }
 
@@ -208,6 +260,12 @@ enum Recipe: String, CaseIterable, Identifiable {
             return ["Malzemeleri tencereye ekle.", "Suyu ve baharatı ayarla."]
         case .kabakYemegi:
             return ["Kabakları doğra.", "Kısa pişirme programını seç."]
+        case .garniturluPilav:
+            return ["Pirinci ve garnitürü ekle.", "Pişirme süresini başlat."]
+        case .humus:
+            return ["Nohutu ve tahini ekle.", "Karıştırıp kıvam ver."]
+        case .mercimekCorbasi:
+            return ["Mercimek ve sebzeleri ekle.", "Çorba programını başlat."]
         }
     }
 }
@@ -251,6 +309,33 @@ extension Recipe {
                 surfaceStrong: Color(red: 0.19, green: 0.18, blue: 0.14),
                 border: Color.white.opacity(0.08)
             )
+        case .garniturluPilav:
+            return RecipeTheme(
+                accent: Color(red: 0.72, green: 0.76, blue: 0.24),
+                accentSoft: Color(red: 0.18, green: 0.19, blue: 0.10),
+                accentMuted: Color(red: 0.50, green: 0.56, blue: 0.16),
+                surface: Color(red: 0.14, green: 0.15, blue: 0.12),
+                surfaceStrong: Color(red: 0.18, green: 0.20, blue: 0.15),
+                border: Color.white.opacity(0.08)
+            )
+        case .humus:
+            return RecipeTheme(
+                accent: Color(red: 0.88, green: 0.73, blue: 0.30),
+                accentSoft: Color(red: 0.22, green: 0.19, blue: 0.10),
+                accentMuted: Color(red: 0.62, green: 0.51, blue: 0.17),
+                surface: Color(red: 0.16, green: 0.15, blue: 0.11),
+                surfaceStrong: Color(red: 0.20, green: 0.19, blue: 0.15),
+                border: Color.white.opacity(0.08)
+            )
+        case .mercimekCorbasi:
+            return RecipeTheme(
+                accent: Color(red: 0.95, green: 0.56, blue: 0.12),
+                accentSoft: Color(red: 0.22, green: 0.12, blue: 0.07),
+                accentMuted: Color(red: 0.66, green: 0.31, blue: 0.10),
+                surface: Color(red: 0.17, green: 0.13, blue: 0.10),
+                surfaceStrong: Color(red: 0.22, green: 0.17, blue: 0.13),
+                border: Color.white.opacity(0.08)
+            )
         }
     }
 }
@@ -259,10 +344,11 @@ extension Recipe {
 
 struct PageDots: View {
     let activeIndex: Int
+    let count: Int
 
     var body: some View {
         HStack(spacing: 4) {
-            ForEach(0..<3, id: \.self) { index in
+            ForEach(0..<count, id: \.self) { index in
                 Circle()
                     .fill(index == activeIndex ? Color.white : Color.white.opacity(0.28))
                     .frame(width: 5, height: 5)
@@ -271,6 +357,11 @@ struct PageDots: View {
         .padding(.top, 2)
         .padding(.bottom, 2)
         .accessibilityHidden(true)
+    }
+
+    init(activeIndex: Int, count: Int = 3) {
+        self.activeIndex = activeIndex
+        self.count = count
     }
 }
 
@@ -311,12 +402,13 @@ struct RecipeSummaryCard: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            RecipeThumbnail(recipe: recipe, size: 22)
+            RecipeThumbnail(recipe: recipe, size: 24)
             VStack(alignment: .leading, spacing: 2) {
                 Text(recipe.title)
                     .font(.system(size: 17, weight: .medium, design: .rounded))
                     .foregroundStyle(.white)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.82)
                 Text(subtitle)
                     .font(.system(size: 11, weight: .regular, design: .rounded))
                     .foregroundStyle(.white.opacity(0.8))
@@ -340,11 +432,12 @@ struct RecipeButtonRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            RecipeThumbnail(recipe: recipe, size: 26)
+            RecipeThumbnail(recipe: recipe, size: 28)
             Text(recipe.title)
                 .font(.system(size: 16, weight: .medium, design: .rounded))
                 .foregroundStyle(.white)
                 .lineLimit(1)
+                .minimumScaleFactor(0.82)
             Spacer(minLength: 4)
         }
         .padding(.horizontal, 10)
@@ -696,22 +789,24 @@ struct RecipesPage: View {
                 TopBar(title: "Tariflerim", titleColor: Color(red: 0.88, green: 0.18, blue: 0.22), showBack: false)
                     .padding(.top, 2)
 
-                VStack(spacing: 8) {
-                    ForEach(Recipe.allCases) { recipe in
-                        Button(action: {
-                            playTapFeedback()
-                            selectedRecipe = recipe
-                            onContinue()
-                        }) {
-                            RecipeButtonRow(recipe: recipe, isSelected: recipe == selectedRecipe)
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 8) {
+                        ForEach(Recipe.allCases) { recipe in
+                            Button(action: {
+                                selectedRecipe = recipe
+                                onContinue()
+                            }) {
+                                RecipeButtonRow(recipe: recipe, isSelected: recipe == selectedRecipe)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
+                    .padding(.top, 4)
+                    .padding(.bottom, 4)
                 }
-                .padding(.top, 4)
+                .frame(maxHeight: .infinity)
 
-                Spacer(minLength: 4)
-                PageDots(activeIndex: 1)
+                PageDots(activeIndex: 1, count: 3)
             }
             .padding(.horizontal, 4)
             .padding(.top, 4)
@@ -1023,7 +1118,7 @@ struct NotificationsPage: View {
                 .padding(.top, 4)
 
                 Spacer(minLength: 4)
-                PageDots(activeIndex: 2)
+                PageDots(activeIndex: 2, count: 3)
             }
             .padding(.horizontal, 4)
             .padding(.vertical, 6)
@@ -1154,7 +1249,7 @@ struct RecipeHeaderCard: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            RecipeThumbnail(recipe: recipe, size: 40)
+            RecipeThumbnail(recipe: recipe, size: 48)
                 .overlay(
                     Circle()
                         .stroke(Color.white.opacity(0.22), lineWidth: 1)
@@ -1164,6 +1259,7 @@ struct RecipeHeaderCard: View {
                     .font(.system(size: 18, weight: .semibold, design: .rounded))
                     .foregroundStyle(.white)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.82)
                 Text("Tarif ayrıntıları")
                     .font(.system(size: 11, weight: .regular, design: .rounded))
                     .foregroundStyle(.white.opacity(0.74))
@@ -1191,11 +1287,13 @@ struct RecipeConfirmationCard: View {
                 .frame(height: 52)
 
             HStack(spacing: 10) {
-                RecipeThumbnail(recipe: recipe, size: 40)
+                RecipeThumbnail(recipe: recipe, size: 48)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(recipe.title)
                         .font(.system(size: 18, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.82)
                     Text("Onay bekliyor")
                         .font(.system(size: 10.5, weight: .regular, design: .rounded))
                         .foregroundStyle(.white.opacity(0.76))
@@ -1215,21 +1313,23 @@ struct RecipeThumbnail: View {
     let size: CGFloat
 
     var body: some View {
+        let thumbnailShape = RoundedRectangle(cornerRadius: max(4, size * 0.2), style: .continuous)
+
         ZStack {
-            Circle()
+            thumbnailShape
                 .fill(backgroundGradient)
 
-            Image(recipe.imageName)
+            Image(recipe.imageName, bundle: .main)
                 .resizable()
                 .scaledToFill()
                 .frame(width: size * 0.92, height: size * 0.92)
-                .clipShape(Circle())
+                .clipShape(thumbnailShape)
                 .overlay(
-                    Circle()
+                    thumbnailShape
                         .fill(Color.white.opacity(0.08))
                 )
 
-            Circle()
+            thumbnailShape
                 .stroke(Color.white.opacity(0.18), lineWidth: max(1, size * 0.04))
         }
         .frame(width: size, height: size)
@@ -1254,6 +1354,24 @@ struct RecipeThumbnail: View {
         case .kabakYemegi:
             return LinearGradient(
                 colors: [Color(red: 0.25, green: 0.30, blue: 0.10), Color(red: 0.76, green: 0.73, blue: 0.20)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .garniturluPilav:
+            return LinearGradient(
+                colors: [Color(red: 0.26, green: 0.42, blue: 0.16), Color(red: 0.77, green: 0.67, blue: 0.22)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .humus:
+            return LinearGradient(
+                colors: [Color(red: 0.41, green: 0.33, blue: 0.14), Color(red: 0.87, green: 0.73, blue: 0.34)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        case .mercimekCorbasi:
+            return LinearGradient(
+                colors: [Color(red: 0.52, green: 0.21, blue: 0.05), Color(red: 0.95, green: 0.54, blue: 0.11)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )

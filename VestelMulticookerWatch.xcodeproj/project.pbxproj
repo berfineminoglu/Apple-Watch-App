@@ -12,6 +12,10 @@
 		111111111111111111111123 /* et-sote.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111126 /* et-sote.jpeg */; };
 		111111111111111111111124 /* taze-fasulye.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111127 /* taze-fasulye.jpeg */; };
 		111111111111111111111125 /* kabak-yemegi.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111128 /* kabak-yemegi.jpeg */; };
+		111111111111111111111131 /* garniturlu-pilav.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111134 /* garniturlu-pilav.jpeg */; };
+		111111111111111111111132 /* humus.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111135 /* humus.jpeg */; };
+		111111111111111111111133 /* mercimek-corbasi.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111136 /* mercimek-corbasi.jpeg */; };
+		111111111111111111111141 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 111111111111111111111140 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +25,10 @@
 		111111111111111111111126 /* et-sote.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = et-sote.jpeg; path = et-sote.jpeg; sourceTree = "<group>"; };
 		111111111111111111111127 /* taze-fasulye.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = taze-fasulye.jpeg; path = taze-fasulye.jpeg; sourceTree = "<group>"; };
 		111111111111111111111128 /* kabak-yemegi.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = kabak-yemegi.jpeg; path = kabak-yemegi.jpeg; sourceTree = "<group>"; };
+		111111111111111111111134 /* garniturlu-pilav.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = garniturlu-pilav.jpeg; path = garniturlu-pilav.jpeg; sourceTree = "<group>"; };
+		111111111111111111111135 /* humus.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = humus.jpeg; path = humus.jpeg; sourceTree = "<group>"; };
+		111111111111111111111136 /* mercimek-corbasi.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = mercimek-corbasi.jpeg; path = mercimek-corbasi.jpeg; sourceTree = "<group>"; };
+		111111111111111111111140 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +46,10 @@
 				111111111111111111111123 /* et-sote.jpeg in Resources */,
 				111111111111111111111124 /* taze-fasulye.jpeg in Resources */,
 				111111111111111111111125 /* kabak-yemegi.jpeg in Resources */,
+				111111111111111111111131 /* garniturlu-pilav.jpeg in Resources */,
+				111111111111111111111132 /* humus.jpeg in Resources */,
+				111111111111111111111133 /* mercimek-corbasi.jpeg in Resources */,
+				111111111111111111111141 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -49,6 +61,7 @@
 			children = (
 				11111111111111111111111A /* Sources */,
 				111111111111111111111129 /* Resources */,
+				111111111111111111111140 /* Assets.xcassets */,
 				11111111111111111111111B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -76,6 +89,9 @@
 				111111111111111111111126 /* et-sote.jpeg */,
 				111111111111111111111127 /* taze-fasulye.jpeg */,
 				111111111111111111111128 /* kabak-yemegi.jpeg */,
+				111111111111111111111134 /* garniturlu-pilav.jpeg */,
+				111111111111111111111135 /* humus.jpeg */,
+				111111111111111111111136 /* mercimek-corbasi.jpeg */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -142,6 +158,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
@@ -173,6 +190,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
@@ -200,6 +218,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
@@ -231,6 +250,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
