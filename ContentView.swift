@@ -9,12 +9,14 @@ private func playTapFeedback(_ haptic: WKHapticType = .click) {
 final class AppSettings: ObservableObject {
     enum AppTheme: String, CaseIterable, Identifiable {
         case dark  = "Koyu"
+        case light = "Açık"
         case red   = "Kırmızı"
         case blue  = "Mavi"
         var id: String { rawValue }
         var accent: Color {
             switch self {
             case .dark:  return Color(red: 0.86, green: 0.12, blue: 0.16)
+            case .light: return Color(red: 0.86, green: 0.12, blue: 0.16)
             case .red:   return Color(red: 0.95, green: 0.25, blue: 0.10)
             case .blue:  return Color(red: 0.10, green: 0.50, blue: 0.95)
             }
@@ -22,6 +24,7 @@ final class AppSettings: ObservableObject {
         var background: Color {
             switch self {
             case .dark:  return Color(red: 0.10, green: 0.10, blue: 0.10)
+            case .light: return Color(red: 0.94, green: 0.94, blue: 0.96)
             case .red:   return Color(red: 0.14, green: 0.06, blue: 0.06)
             case .blue:  return Color(red: 0.06, green: 0.10, blue: 0.16)
             }
@@ -1269,25 +1272,10 @@ struct ChooseRecipePage: View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            VStack(spacing: 8) {
-                HStack(spacing: 6) {
+            VStack(spacing: 6) {
+                HStack {
                     HeatBadge()
-                    Spacer(minLength: 4)
-                    Button {
-                        playTapFeedback()
-                        showSettings = true
-                    } label: {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.55))
-                            .frame(width: 24, height: 24)
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(.top, 2)
-                .sheet(isPresented: $showSettings) {
-                    SettingsPage()
-                        .environmentObject(settings)
+                    Spacer()
                 }
 
                 Spacer(minLength: 2)
@@ -1296,24 +1284,24 @@ struct ChooseRecipePage: View {
                     ZStack {
                         Circle()
                             .stroke(Color.white.opacity(0.7), style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [14, 8]))
-                            .frame(width: 88, height: 88)
+                            .frame(width: 82, height: 82)
                         Circle()
                             .fill(Color(red: 0.47, green: 0.47, blue: 0.47))
-                            .frame(width: 66, height: 66)
+                            .frame(width: 60, height: 60)
                         Image(systemName: "play.fill")
-                            .font(.system(size: 22, weight: .bold))
+                            .font(.system(size: 20, weight: .bold))
                             .foregroundStyle(.white)
                     }
                 }
                 .buttonStyle(.plain)
 
-                Spacer(minLength: 10)
+                Spacer(minLength: 4)
 
                 Button(action: onChoose) {
                     Text("Tarif Seçiniz.")
                         .font(.system(size: 15, weight: .medium, design: .rounded))
                         .foregroundStyle(Color(red: 0.77, green: 0.08, blue: 0.13))
-                        .frame(maxWidth: .infinity, minHeight: 42)
+                        .frame(maxWidth: .infinity, minHeight: 38)
                         .background(
                             RoundedRectangle(cornerRadius: 10, style: .continuous)
                                 .fill(Color(red: 0.14, green: 0.14, blue: 0.14))
@@ -1324,7 +1312,32 @@ struct ChooseRecipePage: View {
                 PageDots(activeIndex: 0)
             }
             .padding(.horizontal, 4)
-            .padding(.vertical, 6)
+            .padding(.top, 4)
+            .padding(.bottom, 4)
+
+            // Gear button overlaid below the system clock area
+            VStack {
+                HStack {
+                    Spacer()
+                    Button {
+                        playTapFeedback()
+                        showSettings = true
+                    } label: {
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.55))
+                            .frame(width: 28, height: 28)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.top, 30)
+                .padding(.trailing, 6)
+                Spacer()
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsPage()
+                    .environmentObject(settings)
+            }
         }
     }
 }
