@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vestel Multicooker – Apple Watch Uygulaması</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red: #e01e24;
+      --red-dark: #b01519;
+      --orange: #f5920a;
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface2: #1e1e1e;
+      --border: #2a2a2a;
+      --text: #f0f0f0;
+      --muted: #888;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px;
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-badge {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 900; color: var(--red);
+      box-shadow: 0 2px 8px rgba(224,30,36,0.4);
+    }
+    .nav-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .nav-subtitle { font-size: 11px; color: var(--muted); }
+    .nav-link {
+      font-size: 13px; color: var(--muted); text-decoration: none;
+      padding: 6px 14px; border: 1px solid var(--border); border-radius: 20px;
+      transition: all 0.2s;
+    }
+    .nav-link:hover { color: var(--text); border-color: var(--red); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 92vh;
+      display: flex; align-items: center; justify-content: center;
+      gap: 80px; padding: 60px 32px;
+      background: radial-gradient(ellipse 60% 50% at 70% 50%, rgba(224,30,36,0.08) 0%, transparent 70%);
+      flex-wrap: wrap;
+    }
+    .hero-text { max-width: 400px; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--orange); margin-bottom: 16px;
+    }
+    .hero-eyebrow::before { content: ''; width: 24px; height: 2px; background: var(--orange); border-radius: 2px; }
+    h1 {
+      font-size: clamp(28px, 4vw, 46px); font-weight: 800; line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    h1 span { background: linear-gradient(90deg, var(--red), var(--orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-desc { font-size: 16px; color: var(--muted); margin-bottom: 32px; line-height: 1.7; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag {
+      font-size: 12px; font-weight: 500; padding: 5px 12px;
+      border: 1px solid var(--border); border-radius: 20px; color: var(--muted);
+    }
+    .tag.accent { border-color: var(--red); color: var(--red); }
+
+    /* ── WATCH MOCKUP ── */
+    .watch-wrap {
+      display: flex; flex-direction: column; align-items: center; gap: 32px;
+    }
+    .watch-outer {
+      position: relative;
+      width: 200px; height: 244px;
+      background: linear-gradient(160deg, #2e2e2e 0%, #181818 100%);
+      border-radius: 68px;
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.07),
+        0 0 0 1.5px #000,
+        0 30px 80px rgba(0,0,0,0.9),
+        0 0 60px rgba(224,30,36,0.15);
+      display: flex; align-items: center; justify-content: center;
+    }
+    /* Side button */
+    .watch-outer::after {
+      content: '';
+      position: absolute; right: -5px; top: 80px;
+      width: 5px; height: 36px;
+      background: linear-gradient(to right, #1a1a1a, #2a2a2a);
+      border-radius: 0 3px 3px 0;
+    }
+    /* Crown */
+    .watch-outer::before {
+      content: '';
+      position: absolute; right: -6px; top: 50px;
+      width: 6px; height: 26px;
+      background: linear-gradient(to right, #1a1a1a, #2a2a2a);
+      border-radius: 0 4px 4px 0;
+    }
+    .watch-screen {
+      width: 184px; height: 224px;
+      border-radius: 58px;
+      overflow: hidden;
+      background: #000;
+      position: relative;
+    }
+    .watch-screen img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.35s ease;
+      position: absolute; top: 0; left: 0;
+      opacity: 0;
+    }
+    .watch-screen img.active { opacity: 1; }
+
+    /* Dots */
+    .watch-dots { display: flex; gap: 8px; }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--border); cursor: pointer; transition: all 0.2s;
+    }
+    .dot.active { background: var(--red); transform: scale(1.3); }
+
+    /* Nav arrows */
+    .watch-nav { display: flex; gap: 12px; align-items: center; }
+    .arrow-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text); font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .arrow-btn:hover { background: var(--surface2); border-color: var(--red); color: var(--red); }
+    .screen-label {
+      font-size: 12px; color: var(--muted); text-align: center;
+      min-width: 160px;
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: 80px 32px; max-width: 1100px; margin: 0 auto; }
+
+    .section-title {
+      font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--red); margin-bottom: 12px;
+    }
+    h2 { font-size: clamp(22px, 3vw, 36px); font-weight: 800; margin-bottom: 40px; }
+    h2 em { font-style: normal; color: var(--muted); }
+
+    /* ── FLOW ── */
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 20px;
+    }
+    .flow-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .flow-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--red);
+      box-shadow: 0 12px 30px rgba(224,30,36,0.15);
+    }
+    .flow-card.active { border-color: var(--red); box-shadow: 0 0 0 2px rgba(224,30,36,0.25); }
+    .flow-thumb {
+      width: 100%; aspect-ratio: 368/448;
+      object-fit: cover; display: block;
+      background: #000;
+    }
+    .flow-info { padding: 10px 12px; }
+    .flow-step {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--red); margin-bottom: 3px;
+    }
+    .flow-name { font-size: 13px; font-weight: 600; }
+    .flow-desc { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .feat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      transition: border-color 0.2s;
+    }
+    .feat:hover { border-color: var(--border); }
+    .feat-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--red), var(--orange));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 14px;
+    }
+    .feat h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .feat p { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+    /* ── RECIPES ── */
+    .recipes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .recipe-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .recipe-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .recipe-chip span { font-size: 13px; font-weight: 500; }
+    .recipe-chip small { display: block; font-size: 11px; color: var(--muted); }
+
+    /* ── DIVIDER ── */
+    .divider { border: none; border-top: 1px solid var(--border); max-width: 1100px; margin: 0 auto; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 40px 32px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+      color: var(--muted); font-size: 13px;
+    }
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+    .footer-badge {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .footer-v {
+      width: 24px; height: 24px; border-radius: 50%; background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900; color: var(--red);
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-badge">V</div>
+    <div>
+      <div class="nav-title">Vestel Multicooker</div>
+      <div class="nav-subtitle">Apple Watch Uygulaması</div>
+    </div>
+  </a>
+  <a class="nav-link" href="https://github.com/berfineminoglu/Apple-Watch-App" target="_blank">GitHub ↗</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" style="max-width:none; padding-bottom:40px;">
+  <div class="hero-text">
+    <div class="hero-eyebrow">HCI Projesi &nbsp;·&nbsp; watchOS</div>
+    <h1>Vestel<br><span>Multicooker</span><br>Watch App</h1>
+    <p class="hero-desc">
+      Apple Watch SE 44mm için tasarlanan bu uygulama, Vestel Multicooker cihazınızı
+      bileğinizden kontrol etmenizi sağlar. Tarif seçin, pişirmeyi başlatın ve
+      bilekliğinizdeki zamanlayıcıyı takip edin.
+    </p>
+    <div class="hero-tags">
+      <span class="tag accent">watchOS</span>
+      <span class="tag">SwiftUI</span>
+      <span class="tag">Apple Watch SE 44mm</span>
+      <span class="tag">Türkçe Arayüz</span>
+    </div>
+  </div>
+
+  <div class="watch-wrap">
+    <div class="watch-outer">
+      <div class="watch-screen" id="watchScreen">
+        <img src="screens/01_choose.png" class="active" alt="Tarif Seçiniz" />
+        <img src="screens/02_recipes.png" alt="Tariflerim" />
+        <img src="screens/03_detail.png" alt="Tarif Detayı" />
+        <img src="screens/04_start.png" alt="Tarifi Başlat" />
+        <img src="screens/05_cooking.png" alt="Pişirme Ekranı" />
+        <img src="screens/06_afiyet.png" alt="Afiyet Olsun" />
+      </div>
+    </div>
+
+    <div class="watch-nav">
+      <button class="arrow-btn" id="prevBtn" onclick="changeScreen(-1)">‹</button>
+      <div class="watch-dots" id="dotsContainer"></div>
+      <button class="arrow-btn" id="nextBtn" onclick="changeScreen(1)">›</button>
+    </div>
+    <div class="screen-label" id="screenLabel"></div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- FLOW -->
+<section id="flow">
+  <div class="section-title">Uygulama Akışı</div>
+  <h2>Ekrandan <em>ekrana</em></h2>
+  <div class="flow-grid" id="flowGrid"></div>
+</section>
+
+<hr class="divider" />
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-title">Özellikler</div>
+  <h2>Neler <em>yapabilirsiniz?</em></h2>
+  <div class="features-grid">
+    <div class="feat">
+      <div class="feat-icon">🍳</div>
+      <h3>6 Tarif</h3>
+      <p>Et Sote, Taze Fasulye, Kabak Yemeği, Garnitürlü Pilav, Humus ve Mercimek Çorbası tarifleri yerleşik olarak gelir.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">⏱</div>
+      <h3>Otomatik Zamanlayıcı</h3>
+      <p>Tarifi başlattığınızda pişirme süresi otomatik başlar. Duraklatıp devam ettirebilirsiniz.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🔔</div>
+      <h3>Bildirimler</h3>
+      <p>Pişirme tamamlandığında "Afiyet olsun" bildirimi alırsınız. Bildirim geçmişi kayıt altına alınır.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">↔</div>
+      <h3>Kaydırarak Gezinti</h3>
+      <p>Tarif Seçiniz, Tariflerim ve Bildirimler ekranları arasında sola/sağa kaydırarak geçiş yapılır.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">📋</div>
+      <h3>Tarif Detayları</h3>
+      <p>Her tarif için malzeme listesi ve hazırlanış adımları açılır-kapanır paneller ile sunulur.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">💡</div>
+      <h3>Dinamik Tema</h3>
+      <p>Her tarife özel renk teması; pişirme sırasında canlı ilerleme halkası ile görsel geri bildirim.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- RECIPES -->
+<section id="recipes">
+  <div class="section-title">Desteklenen Tarifler</div>
+  <h2>6 <em>yerleşik tarif</em></h2>
+  <div class="recipes-grid">
+    <div class="recipe-chip"><div class="recipe-dot" style="background:#e02828"></div><div><span>Et Sote</span><small>30 dk · 400 cal</small></div></div>
+    <div class="recipe-chip"><div class="recipe-dot" style="background:#28a428"></div><div><span>Taze Fasulye</span><small>26 dk · 220 cal</small></div></div>
+    <div class="recipe-chip"><div class="recipe-dot" style="background:#d4a017"></div><div><span>Kabak Yemeği</span><small>22 dk · 180 cal</small></div></div>
+    <div class="recipe-chip"><div class="recipe-dot" style="background:#a8b830"></div><div><span>Garnitürlü Pilav</span><small>18 dk · 280 cal</small></div></div>
+    <div class="recipe-chip"><div class="recipe-dot" style="background:#c8a828"></div><div><span>Humus</span><small>12 dk · 160 cal</small></div></div>
+    <div class="recipe-chip"><div class="recipe-dot" style="background:#e07010"></div><div><span>Mercimek Çorbası</span><small>25 dk · 150 cal</small></div></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-badge">
+    <div class="footer-v">V</div>
+    <span>Vestel Multicooker Watch App &mdash; İYTE HCI Projesi 2026</span>
+  </div>
+  <div style="display:flex;gap:24px;">
+    <a href="https://github.com/berfineminoglu/Apple-Watch-App" target="_blank">GitHub Repo ↗</a>
+  </div>
+</footer>
+
+<script>
+  const screens = [
+    { img: 'screens/01_choose.png', label: '1 / 6 — Tarif Seçiniz',       step: 'Adım 1', name: 'Tarif Seçiniz',    desc: 'Uygulamanın ana ekranı. Tarif seçmek için butona dokunun.' },
+    { img: 'screens/02_recipes.png', label: '2 / 6 — Tariflerim',          step: 'Adım 2', name: 'Tariflerim',       desc: 'Desteklenen tariflerin listesi. Fotoğraflı ikonlarla gösterilir.' },
+    { img: 'screens/03_detail.png',  label: '3 / 6 — Tarif Detayı',        step: 'Adım 3', name: 'Tarif Detayı',    desc: 'Malzemeler ve hazırlanış adımları açılır panellerde sunulur.' },
+    { img: 'screens/04_start.png',   label: '4 / 6 — Tarifi Başlat',       step: 'Adım 4', name: 'Tarifi Başlat',   desc: '"Tarifi Başlat" butonu ile pişirme başlar.' },
+    { img: 'screens/05_cooking.png', label: '5 / 6 — Pişirme Ekranı',      step: 'Adım 5', name: 'Pişirme Ekranı',  desc: 'Canlı ilerleme halkası ve kalan süre göstergesi.' },
+    { img: 'screens/06_afiyet.png',  label: '6 / 6 — Afiyet Olsun',        step: 'Adım 6', name: 'Afiyet Olsun!',   desc: 'Pişirme tamamlandığında 2 saniyelik bildirim gösterilir.' },
+  ];
+
+  let current = 0;
+  const imgs = document.querySelectorAll('#watchScreen img');
+  const dotsEl = document.getElementById('dotsContainer');
+  const labelEl = document.getElementById('screenLabel');
+  const flowGrid = document.getElementById('flowGrid');
+
+  // Build dots
+  screens.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+
+  // Build flow cards
+  screens.forEach((s, i) => {
+    const c = document.createElement('div');
+    c.className = 'flow-card' + (i === 0 ? ' active' : '');
+    c.innerHTML = `<img class="flow-thumb" src="${s.img}" alt="${s.name}" loading="lazy">
+      <div class="flow-info">
+        <div class="flow-step">${s.step}</div>
+        <div class="flow-name">${s.name}</div>
+        <div class="flow-desc">${s.desc}</div>
+      </div>`;
+    c.onclick = () => goTo(i);
+    flowGrid.appendChild(c);
+  });
+
+  function goTo(n) {
+    imgs[current].classList.remove('active');
+    document.querySelectorAll('.dot')[current].classList.remove('active');
+    document.querySelectorAll('.flow-card')[current].classList.remove('active');
+
+    current = (n + screens.length) % screens.length;
+
+    imgs[current].classList.add('active');
+    document.querySelectorAll('.dot')[current].classList.add('active');
+    document.querySelectorAll('.flow-card')[current].classList.add('active');
+    labelEl.textContent = screens[current].label;
+
+    // Scroll flow card into view
+    document.querySelectorAll('.flow-card')[current].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+
+  function changeScreen(dir) { goTo(current + dir); }
+
+  // Init label
+  labelEl.textContent = screens[0].label;
+
+  // Auto-advance every 3s
+  setInterval(() => changeScreen(1), 3000);
+</script>
+</body>
+</html>
