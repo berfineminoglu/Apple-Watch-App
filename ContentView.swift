@@ -1328,11 +1328,11 @@ struct NotificationsPage: View {
                     }
                     .buttonStyle(.plain)
                 }
-                .padding(.top, 30)
+                .padding(.top, 8)
                 .padding(.trailing, 6)
                 Spacer()
             }
-            .sheet(isPresented: $showSettings) {
+            .fullScreenCover(isPresented: $showSettings) {
                 SettingsPage().environmentObject(settings)
             }
         }
