@@ -18,6 +18,7 @@ struct ContentView: View {
         case notifications
     }
 
+    @Environment(\.scenePhase) private var scenePhase
     @State private var screen: RootScreen = .launch
     @State private var recipePagerSelection: RecipePagerPage = .recipes
     @State private var selectedRecipe: Recipe = .etSote
@@ -70,11 +71,17 @@ struct ContentView: View {
             guard !didScheduleSplashDismissal else { return }
             didScheduleSplashDismissal = true
 
-            try? await Task.sleep(nanoseconds: 1_300_000_000)
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
             await MainActor.run {
                 withAnimation(.easeInOut(duration: 0.28)) {
                     showLaunchSplash = false
                 }
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active && !showLaunchSplash {
+                showLaunchSplash = true
+                didScheduleSplashDismissal = false
             }
         }
     }
@@ -959,19 +966,10 @@ struct StartPage: View {
 }
 
 struct LogoPage: View {
-    @State private var visible = false
-
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-
-            VestelLogoBadge(size: 64)
-                .scaleEffect(visible ? 1.0 : 0.86)
-                .opacity(visible ? 1.0 : 0.2)
-                .animation(.spring(response: 0.38, dampingFraction: 0.72), value: visible)
-        }
-        .onAppear {
-            visible = true
+            VestelLogoBadge(size: 72)
         }
     }
 }
