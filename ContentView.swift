@@ -22,7 +22,7 @@ struct ContentView: View {
     @State private var recipePagerSelection: RecipePagerPage = .recipes
     @State private var selectedRecipe: Recipe = .etSote
     @State private var showLaunchSplash = true
-    @State private var didScheduleSplashDismissal = false
+    @State private var wentToBackground = false
 
     // Cooking timer state (persists across navigation)
     @State private var isCooking = false
@@ -42,9 +42,14 @@ struct ContentView: View {
             screenView
 
             if showLaunchSplash {
-                LogoPage()
-                    .transition(.opacity)
-                    .zIndex(1)
+                LogoPage(onDismiss: {
+                    withAnimation(.easeInOut(duration: 0.35)) {
+                        showLaunchSplash = false
+                        recipePagerSelection = .choose
+                    }
+                })
+                .transition(.opacity)
+                .zIndex(1)
             }
 
             if showCookingDoneToast {
@@ -66,23 +71,12 @@ struct ContentView: View {
                 .ignoresSafeArea()
             }
         }
-        .task {
-            guard !didScheduleSplashDismissal else { return }
-            didScheduleSplashDismissal = true
-
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
-            await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.35)) {
-                    showLaunchSplash = false
-                    recipePagerSelection = .choose
-                    screen = .recipePager
-                }
-            }
-        }
         .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .active && !showLaunchSplash {
+            if newPhase == .background {
+                wentToBackground = true
+            } else if newPhase == .active && wentToBackground {
+                wentToBackground = false
                 showLaunchSplash = true
-                didScheduleSplashDismissal = false
             }
         }
     }
@@ -957,10 +951,20 @@ struct StartPage: View {
 }
 
 struct LogoPage: View {
+    let onDismiss: () -> Void
+    @State private var appearedAt: Date? = nil
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
             VestelLogoBadge(size: 72)
+        }
+        .onAppear {
+            appearedAt = Date()
+        }
+        .task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            onDismiss()
         }
     }
 }
