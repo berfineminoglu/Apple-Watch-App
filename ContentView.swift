@@ -13,6 +13,19 @@ final class AppSettings: ObservableObject {
         case red   = "Kırmızı"
         case blue  = "Mavi"
         var id: String { rawValue }
+
+        func displayName(language: AppLanguage) -> String {
+            switch self {
+            case .dark:
+                return language == .turkish ? "Koyu" : "Dark"
+            case .light:
+                return language == .turkish ? "Açık" : "Light"
+            case .red:
+                return language == .turkish ? "Kırmızı" : "Red"
+            case .blue:
+                return language == .turkish ? "Mavi" : "Blue"
+            }
+        }
         var accent: Color {
             switch self {
             case .dark:  return Color(red: 0.86, green: 0.12, blue: 0.16)
@@ -48,6 +61,15 @@ final class AppSettings: ObservableObject {
         case turkish = "Türkçe"
         case english = "English"
         var id: String { rawValue }
+
+        func displayName(language: AppLanguage) -> String {
+            switch self {
+            case .turkish:
+                return language == .turkish ? "Türkçe" : "Turkish"
+            case .english:
+                return "English"
+            }
+        }
     }
 
     @Published var theme: AppTheme    = .dark
@@ -275,6 +297,23 @@ enum Recipe: String, CaseIterable, Identifiable {
         }
     }
 
+    func localizedTitle(language: AppSettings.AppLanguage) -> String {
+        switch (self, language) {
+        case (.etSote, .turkish): return "Et Sote"
+        case (.etSote, .english): return "Meat Saute"
+        case (.tazeFasulye, .turkish): return "Taze Fasulye"
+        case (.tazeFasulye, .english): return "Green Beans"
+        case (.kabakYemegi, .turkish): return "Kabak Yemeği"
+        case (.kabakYemegi, .english): return "Zucchini Stew"
+        case (.garniturluPilav, .turkish): return "Garnitürlü Pilav"
+        case (.garniturluPilav, .english): return "Rice with Vegetables"
+        case (.humus, .turkish): return "Humus"
+        case (.humus, .english): return "Hummus"
+        case (.mercimekCorbasi, .turkish): return "Mercimek Çorbası"
+        case (.mercimekCorbasi, .english): return "Lentil Soup"
+        }
+    }
+
     var imageName: String {
         switch self {
         case .etSote: return "et-sote"
@@ -286,14 +325,15 @@ enum Recipe: String, CaseIterable, Identifiable {
         }
     }
 
-    var duration: String {
+    func durationText(language: AppSettings.AppLanguage) -> String {
+        let unit = language == .turkish ? "dk" : "min"
         switch self {
-        case .etSote: return "30 dk"
-        case .tazeFasulye: return "26 dk"
-        case .kabakYemegi: return "22 dk"
-        case .garniturluPilav: return "18 dk"
-        case .humus: return "12 dk"
-        case .mercimekCorbasi: return "25 dk"
+        case .etSote: return "30 \(unit)"
+        case .tazeFasulye: return "26 \(unit)"
+        case .kabakYemegi: return "22 \(unit)"
+        case .garniturluPilav: return "18 \(unit)"
+        case .humus: return "12 \(unit)"
+        case .mercimekCorbasi: return "25 \(unit)"
         }
     }
 
@@ -323,65 +363,106 @@ enum Recipe: String, CaseIterable, Identifiable {
         }
     }
 
-    var remaining: String {
+    func remainingText(language: AppSettings.AppLanguage) -> String {
+        let unit = language == .turkish ? "dk" : "min"
         switch self {
-        case .etSote: return "21 dk"
-        case .tazeFasulye: return "18 dk"
-        case .kabakYemegi: return "14 dk"
-        case .garniturluPilav: return "12 dk"
-        case .humus: return "8 dk"
-        case .mercimekCorbasi: return "16 dk"
+        case .etSote: return "21 \(unit)"
+        case .tazeFasulye: return "18 \(unit)"
+        case .kabakYemegi: return "14 \(unit)"
+        case .garniturluPilav: return "12 \(unit)"
+        case .humus: return "8 \(unit)"
+        case .mercimekCorbasi: return "16 \(unit)"
         }
     }
 
-    func remainingText(for remainingSeconds: Int) -> String {
+    func remainingText(for remainingSeconds: Int, language: AppSettings.AppLanguage) -> String {
         let roundedMinutes = max(0, Int(ceil(Double(remainingSeconds) / 60.0)))
-        return "\(roundedMinutes) dk"
+        return "\(roundedMinutes) \(language == .turkish ? "dk" : "min")"
     }
 
-    var notificationTitle: String {
-        "\"Sıcak Tutma\""
+    func notificationTitle(language: AppSettings.AppLanguage) -> String {
+        language == .turkish ? "\"Sıcak Tutma\"" : "\"Keep Warm\""
     }
 
-    var notificationText: String {
-        "\(title) için \(notificationTitle) moduna geçildi."
-    }
-
-    var alertText: String {
-        "Yemeğin 5 dakikaya hazır :)"
-    }
-
-    var ingredientLines: [String] {
-        switch self {
-        case .etSote:
-            return ["250 g kuşbaşı et", "1 soğan, 1 biber", "Domates salçası, baharat"]
-        case .tazeFasulye:
-            return ["500 g taze fasulye", "Domates, soğan", "Zeytinyağı, tuz"]
-        case .kabakYemegi:
-            return ["3 kabak", "Havuç, dereotu", "Yoğurtlu servis"]
-        case .garniturluPilav:
-            return ["1 su bardağı pirinç", "Garnitür, bezelye", "Tereyağı, tuz"]
-        case .humus:
-            return ["2 su bardağı nohut", "Tahin, limon, sarımsak", "Zeytinyağı, kimyon"]
-        case .mercimekCorbasi:
-            return ["1 su bardağı kırmızı mercimek", "Soğan, havuç", "Salça, tereyağı, baharat"]
+    func notificationText(language: AppSettings.AppLanguage) -> String {
+        if language == .turkish {
+            return "\(localizedTitle(language: language)) için \(notificationTitle(language: language)) moduna geçildi."
+        } else {
+            return "Switched to \(notificationTitle(language: language)) mode for \(localizedTitle(language: language))."
         }
     }
 
-    var preparationLines: [String] {
-        switch self {
-        case .etSote:
-            return ["Et ve sebzeleri yerleştir.", "Süreyi onayla ve başlat."]
-        case .tazeFasulye:
-            return ["Malzemeleri tencereye ekle.", "Suyu ve baharatı ayarla."]
-        case .kabakYemegi:
-            return ["Kabakları doğra.", "Kısa pişirme programını seç."]
-        case .garniturluPilav:
-            return ["Pirinci ve garnitürü ekle.", "Pişirme süresini başlat."]
-        case .humus:
-            return ["Nohutu ve tahini ekle.", "Karıştırıp kıvam ver."]
-        case .mercimekCorbasi:
-            return ["Mercimek ve sebzeleri ekle.", "Çorba programını başlat."]
+    func alertText(language: AppSettings.AppLanguage) -> String {
+        language == .turkish ? "Yemeğin 5 dakikaya hazır :)" : "Your meal will be ready in 5 minutes :)"
+    }
+
+    func ingredientLines(language: AppSettings.AppLanguage) -> [String] {
+        switch language {
+        case .turkish:
+            switch self {
+            case .etSote:
+                return ["250 g kuşbaşı et", "1 soğan, 1 biber", "Domates salçası, baharat"]
+            case .tazeFasulye:
+                return ["500 g taze fasulye", "Domates, soğan", "Zeytinyağı, tuz"]
+            case .kabakYemegi:
+                return ["3 kabak", "Havuç, dereotu", "Yoğurtlu servis"]
+            case .garniturluPilav:
+                return ["1 su bardağı pirinç", "Garnitür, bezelye", "Tereyağı, tuz"]
+            case .humus:
+                return ["2 su bardağı nohut", "Tahin, limon, sarımsak", "Zeytinyağı, kimyon"]
+            case .mercimekCorbasi:
+                return ["1 su bardağı kırmızı mercimek", "Soğan, havuç", "Salça, tereyağı, baharat"]
+            }
+        case .english:
+            switch self {
+            case .etSote:
+                return ["250 g diced beef", "1 onion, 1 pepper", "Tomato paste, spices"]
+            case .tazeFasulye:
+                return ["500 g green beans", "Tomatoes, onion", "Olive oil, salt"]
+            case .kabakYemegi:
+                return ["3 zucchinis", "Carrot, dill", "Serve with yogurt"]
+            case .garniturluPilav:
+                return ["1 cup rice", "Mixed vegetables, peas", "Butter, salt"]
+            case .humus:
+                return ["2 cups chickpeas", "Tahini, lemon, garlic", "Olive oil, cumin"]
+            case .mercimekCorbasi:
+                return ["1 cup red lentils", "Onion, carrot", "Tomato paste, butter, spices"]
+            }
+        }
+    }
+
+    func preparationLines(language: AppSettings.AppLanguage) -> [String] {
+        switch language {
+        case .turkish:
+            switch self {
+            case .etSote:
+                return ["Et ve sebzeleri yerleştir.", "Süreyi onayla ve başlat."]
+            case .tazeFasulye:
+                return ["Malzemeleri tencereye ekle.", "Suyu ve baharatı ayarla."]
+            case .kabakYemegi:
+                return ["Kabakları doğra.", "Kısa pişirme programını seç."]
+            case .garniturluPilav:
+                return ["Pirinci ve garnitürü ekle.", "Pişirme süresini başlat."]
+            case .humus:
+                return ["Nohutu ve tahini ekle.", "Karıştırıp kıvam ver."]
+            case .mercimekCorbasi:
+                return ["Mercimek ve sebzeleri ekle.", "Çorba programını başlat."]
+            }
+        case .english:
+            switch self {
+            case .etSote:
+                return ["Place the beef and vegetables.", "Confirm the time and start."]
+            case .tazeFasulye:
+                return ["Add the ingredients to the pot.", "Adjust water and spices."]
+            case .kabakYemegi:
+                return ["Chop the zucchinis.", "Choose the short cooking program."]
+            case .garniturluPilav:
+                return ["Add rice and vegetables.", "Start the cooking cycle."]
+            case .humus:
+                return ["Add chickpeas and tahini.", "Blend and adjust the texture."]
+            case .mercimekCorbasi:
+                return ["Add lentils and vegetables.", "Start the soup program."]
+            }
         }
     }
 }
@@ -538,7 +619,7 @@ struct RecipeSummaryCard: View {
         HStack(spacing: 8) {
             RecipeThumbnail(recipe: recipe, size: 24)
             VStack(alignment: .leading, spacing: 2) {
-                Text(recipe.title)
+                Text(recipe.localizedTitle(language: settings.language))
                     .font(.system(size: 17, weight: .medium, design: .rounded))
                     .foregroundStyle(settings.theme.foreground)
                     .lineLimit(1)
@@ -568,7 +649,7 @@ struct RecipeButtonRow: View {
     var body: some View {
         HStack(spacing: 10) {
             RecipeThumbnail(recipe: recipe, size: 28)
-            Text(recipe.title)
+            Text(recipe.localizedTitle(language: settings.language))
                 .font(.system(size: 16, weight: .medium, design: .rounded))
                 .foregroundStyle(settings.theme.foreground)
                 .lineLimit(1)
@@ -877,7 +958,7 @@ struct StartPage: View {
 // MARK: - Settings Page
 struct SettingsPage: View {
     @EnvironmentObject private var settings: AppSettings
-    @Environment(\.dismiss) private var dismiss
+    let onBack: () -> Void
 
     var body: some View {
         ScrollView {
@@ -887,7 +968,7 @@ struct SettingsPage: View {
                     title: settings.t("Ayarlar", "Settings"),
                     titleColor: settings.theme.foreground,
                     showBack: true,
-                    onBack: { dismiss() }
+                    onBack: onBack
                 )
                 .padding(.top, 4)
 
@@ -911,7 +992,7 @@ struct SettingsPage: View {
                                         Circle()
                                             .stroke(settings.theme.foreground.opacity(0.25), lineWidth: 1)
                                     )
-                                Text(theme.rawValue)
+                                Text(theme.displayName(language: settings.language))
                                     .font(.system(size: 14, weight: .medium, design: .rounded))
                                     .foregroundStyle(settings.theme.foreground)
                                 Spacer()
@@ -963,7 +1044,7 @@ struct SettingsPage: View {
                             settings.language = lang
                         } label: {
                             HStack {
-                                Text(lang.rawValue)
+                                Text(lang.displayName(language: settings.language))
                                     .font(.system(size: 14, weight: .medium, design: .rounded))
                                     .foregroundStyle(settings.theme.foreground)
                                 Spacer()
@@ -1262,10 +1343,10 @@ struct NotificationRow: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(isCompleted
-                     ? "\(notif.recipe.title) \(settings.t("hazır!", "ready!"))"
+                     ? "\(notif.recipe.localizedTitle(language: settings.language)) \(settings.t("hazır!", "ready!"))"
                      : isKeepWarm
-                     ? "\(notif.recipe.title) \(settings.t("sıcak tutmada", "on keep warm"))"
-                     : "\(notif.recipe.title) \(settings.t("pişmeye başladı", "started cooking"))")
+                     ? "\(notif.recipe.localizedTitle(language: settings.language)) \(settings.t("sıcak tutmada", "on keep warm"))"
+                     : "\(notif.recipe.localizedTitle(language: settings.language)) \(settings.t("pişmeye başladı", "started cooking"))")
                     .font(.system(size: 12.5, weight: .semibold, design: .rounded))
                     .foregroundStyle(settings.theme.foreground)
                     .fixedSize(horizontal: false, vertical: true)
@@ -1311,60 +1392,64 @@ struct NotificationsPage: View {
 
     var body: some View {
         ZStack {
-            settings.theme.background.ignoresSafeArea()
+            if showSettings {
+                SettingsPage(onBack: {
+                    showSettings = false
+                })
+                .environmentObject(settings)
+            } else {
+                settings.theme.background.ignoresSafeArea()
 
-            VStack(spacing: 8) {
-                TopBar(title: settings.t("Bildirimler", "Notifications"), titleColor: Color(red: 0.88, green: 0.18, blue: 0.22), showBack: false)
-                    .padding(.top, 2)
+                VStack(spacing: 8) {
+                    TopBar(title: settings.t("Bildirimler", "Notifications"), titleColor: Color(red: 0.88, green: 0.18, blue: 0.22), showBack: false)
+                        .padding(.top, 2)
 
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 8) {
-                        if notifications.isEmpty {
-                            Text(settings.t("Henüz bildirim yok", "No notifications yet"))
-                                .font(.system(size: 12, weight: .regular, design: .rounded))
-                                .foregroundStyle(settings.theme.foreground.opacity(0.4))
-                                .frame(maxWidth: .infinity)
-                                .padding(.top, 20)
-                        } else {
-                            ForEach(notifications.reversed()) { notif in
-                                NotificationRow(
-                                    notif: notif,
-                                    onReturnToCooking: onReturnToCooking
-                                )
+                    ScrollView(.vertical, showsIndicators: false) {
+                        VStack(spacing: 8) {
+                            if notifications.isEmpty {
+                                Text(settings.t("Henüz bildirim yok", "No notifications yet"))
+                                    .font(.system(size: 12, weight: .regular, design: .rounded))
+                                    .foregroundStyle(settings.theme.foreground.opacity(0.4))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.top, 20)
+                            } else {
+                                ForEach(notifications.reversed()) { notif in
+                                    NotificationRow(
+                                        notif: notif,
+                                        onReturnToCooking: onReturnToCooking
+                                    )
+                                }
                             }
                         }
+                        .padding(.top, 4)
+                        .padding(.bottom, 4)
                     }
-                    .padding(.top, 4)
-                    .padding(.bottom, 4)
+                    .frame(maxHeight: .infinity)
+
+                    PageDots(activeIndex: 2, count: 3)
                 }
-                .frame(maxHeight: .infinity)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 6)
 
-                PageDots(activeIndex: 2, count: 3)
-            }
-            .padding(.horizontal, 4)
-            .padding(.vertical, 6)
-
-            // Ayarlar tuşu — sağ üst, saat göstergesinin altı
-            VStack {
-                HStack {
+                // Ayarlar tuşu — sağ üst, saat göstergesinin altı
+                VStack {
+                    HStack {
+                        Spacer()
+                        Button {
+                            playTapFeedback()
+                            showSettings = true
+                        } label: {
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(settings.theme.foreground.opacity(0.55))
+                                .frame(width: 28, height: 28)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(.top, 8)
+                    .padding(.trailing, 6)
                     Spacer()
-                    Button {
-                        playTapFeedback()
-                        showSettings = true
-                    } label: {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(settings.theme.foreground.opacity(0.55))
-                            .frame(width: 28, height: 28)
-                    }
-                    .buttonStyle(.plain)
                 }
-                .padding(.top, 8)
-                .padding(.trailing, 6)
-                Spacer()
-            }
-            .fullScreenCover(isPresented: $showSettings) {
-                SettingsPage().environmentObject(settings)
             }
         }
     }
@@ -1387,13 +1472,13 @@ struct DetailPage: View {
                     RecipeHeaderCard(recipe: recipe)
 
                     HStack(spacing: 10) {
-                        RecipeChip(label: "\(recipe.durationMinutes) \(settings.t("dk", "min"))")
+                        RecipeChip(label: recipe.durationText(language: settings.language))
                         RecipeChip(label: recipe.calories)
                     }
 
                     VStack(spacing: 8) {
-                        ExpandableRow(title: settings.t("Hazırlanışı", "Preparation"), lines: recipe.preparationLines)
-                        ExpandableRow(title: settings.t("Malzemeler", "Ingredients"), lines: recipe.ingredientLines)
+                        ExpandableRow(title: settings.t("Hazırlanışı", "Preparation"), lines: recipe.preparationLines(language: settings.language))
+                        ExpandableRow(title: settings.t("Malzemeler", "Ingredients"), lines: recipe.ingredientLines(language: settings.language))
                     }
 
                     Button(action: {
@@ -1472,12 +1557,12 @@ struct ConfirmPage: View {
 
                     HStack(spacing: 10) {
                         RecipeChip(label: recipe.calories)
-                        RecipeChip(label: "\(recipe.durationMinutes) \(settings.t("dk", "min"))")
+                        RecipeChip(label: recipe.durationText(language: settings.language))
                     }
 
                     VStack(spacing: 8) {
-                        ExpandableRow(title: settings.t("Hazırlanışı", "Preparation"), lines: recipe.preparationLines)
-                        ExpandableRow(title: settings.t("Malzemeler", "Ingredients"), lines: recipe.ingredientLines)
+                        ExpandableRow(title: settings.t("Hazırlanışı", "Preparation"), lines: recipe.preparationLines(language: settings.language))
+                        ExpandableRow(title: settings.t("Malzemeler", "Ingredients"), lines: recipe.ingredientLines(language: settings.language))
                     }
 
                     Button(action: onStart) {
@@ -1513,7 +1598,7 @@ struct RecipeHeaderCard: View {
                         .stroke(Color.white.opacity(0.22), lineWidth: 1)
                 )
             VStack(alignment: .leading, spacing: 2) {
-                Text(recipe.title)
+                Text(recipe.localizedTitle(language: settings.language))
                     .font(.system(size: 18, weight: .semibold, design: .rounded))
                     .foregroundStyle(.white)
                     .lineLimit(1)
@@ -1548,7 +1633,7 @@ struct RecipeConfirmationCard: View {
             HStack(spacing: 10) {
                 RecipeThumbnail(recipe: recipe, size: 48)
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(recipe.title)
+                    Text(recipe.localizedTitle(language: settings.language))
                         .font(.system(size: 18, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white)
                         .lineLimit(1)
