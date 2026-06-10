@@ -966,7 +966,7 @@ struct SettingsPage: View {
 
                 TopBar(
                     title: settings.t("Ayarlar", "Settings"),
-                    titleColor: settings.theme.foreground,
+                    titleColor: Color(red: 0.88, green: 0.18, blue: 0.22),
                     showBack: true,
                     onBack: onBack
                 )
