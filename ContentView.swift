@@ -863,16 +863,19 @@ struct StartPage: View {
 // MARK: - Settings Page
 struct SettingsPage: View {
     @EnvironmentObject private var settings: AppSettings
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
 
-                // Header
-                Text(settings.t("Ayarlar", "Settings"))
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundStyle(settings.theme.foreground)
-                    .padding(.top, 4)
+                TopBar(
+                    title: settings.t("Ayarlar", "Settings"),
+                    titleColor: settings.theme.foreground,
+                    showBack: true,
+                    onBack: { dismiss() }
+                )
+                .padding(.top, 4)
 
                 // Theme
                 VStack(alignment: .leading, spacing: 6) {
