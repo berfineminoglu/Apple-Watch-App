@@ -891,8 +891,12 @@ struct SettingsPage: View {
                         } label: {
                             HStack {
                                 Circle()
-                                    .fill(theme.accent)
-                                    .frame(width: 10, height: 10)
+                                    .fill(theme.background)
+                                    .frame(width: 14, height: 14)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(settings.theme.foreground.opacity(0.25), lineWidth: 1)
+                                    )
                                 Text(theme.rawValue)
                                     .font(.system(size: 14, weight: .medium, design: .rounded))
                                     .foregroundStyle(settings.theme.foreground)
