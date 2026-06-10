@@ -5,6 +5,43 @@ private func playTapFeedback(_ haptic: WKHapticType = .click) {
     WKInterfaceDevice.current().play(haptic)
 }
 
+// MARK: - App Settings
+final class AppSettings: ObservableObject {
+    enum AppTheme: String, CaseIterable, Identifiable {
+        case dark  = "Koyu"
+        case red   = "Kırmızı"
+        case blue  = "Mavi"
+        var id: String { rawValue }
+        var accent: Color {
+            switch self {
+            case .dark:  return Color(red: 0.86, green: 0.12, blue: 0.16)
+            case .red:   return Color(red: 0.95, green: 0.25, blue: 0.10)
+            case .blue:  return Color(red: 0.10, green: 0.50, blue: 0.95)
+            }
+        }
+        var background: Color {
+            switch self {
+            case .dark:  return Color(red: 0.10, green: 0.10, blue: 0.10)
+            case .red:   return Color(red: 0.14, green: 0.06, blue: 0.06)
+            case .blue:  return Color(red: 0.06, green: 0.10, blue: 0.16)
+            }
+        }
+    }
+    enum AppLanguage: String, CaseIterable, Identifiable {
+        case turkish = "Türkçe"
+        case english = "English"
+        var id: String { rawValue }
+    }
+
+    @Published var theme: AppTheme    = .dark
+    @Published var voiceEnabled: Bool = true
+    @Published var language: AppLanguage = .turkish
+
+    func t(_ turkish: String, _ english: String) -> String {
+        language == .turkish ? turkish : english
+    }
+}
+
 struct ContentView: View {
     private enum RootScreen {
         case recipePager
@@ -17,6 +54,7 @@ struct ContentView: View {
         case notifications
     }
 
+    @StateObject private var settings = AppSettings()
     @Environment(\.scenePhase) private var scenePhase
     @State private var screen: RootScreen = .recipePager
     @State private var recipePagerSelection: RecipePagerPage = .recipes
@@ -71,6 +109,7 @@ struct ContentView: View {
                 .ignoresSafeArea()
             }
         }
+        .environmentObject(settings)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .background {
                 wentToBackground = true
@@ -950,6 +989,119 @@ struct StartPage: View {
     }
 }
 
+// MARK: - Settings Page
+struct SettingsPage: View {
+    @EnvironmentObject private var settings: AppSettings
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+
+                // Header
+                Text(settings.t("Ayarlar", "Settings"))
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .padding(.top, 4)
+
+                // Theme
+                VStack(alignment: .leading, spacing: 6) {
+                    Label(settings.t("Tema", "Theme"),
+                          systemImage: "paintpalette.fill")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.6))
+
+                    ForEach(AppSettings.AppTheme.allCases) { theme in
+                        Button {
+                            playTapFeedback()
+                            settings.theme = theme
+                        } label: {
+                            HStack {
+                                Circle()
+                                    .fill(theme.accent)
+                                    .frame(width: 10, height: 10)
+                                Text(theme.rawValue)
+                                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                                    .foregroundStyle(.white)
+                                Spacer()
+                                if settings.theme == theme {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundStyle(theme.accent)
+                                }
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                                    .fill(settings.theme == theme
+                                          ? theme.accent.opacity(0.18)
+                                          : Color.white.opacity(0.06))
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+                Divider().background(Color.white.opacity(0.12))
+
+                // Voice
+                HStack {
+                    Label(settings.t("Ses", "Voice"),
+                          systemImage: settings.voiceEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.6))
+                    Spacer()
+                    Toggle("", isOn: $settings.voiceEnabled)
+                        .labelsHidden()
+                        .tint(settings.theme.accent)
+                }
+
+                Divider().background(Color.white.opacity(0.12))
+
+                // Language
+                VStack(alignment: .leading, spacing: 6) {
+                    Label(settings.t("Dil", "Language"),
+                          systemImage: "globe")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.6))
+
+                    ForEach(AppSettings.AppLanguage.allCases) { lang in
+                        Button {
+                            playTapFeedback()
+                            settings.language = lang
+                        } label: {
+                            HStack {
+                                Text(lang.rawValue)
+                                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                                    .foregroundStyle(.white)
+                                Spacer()
+                                if settings.language == lang {
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 11, weight: .bold))
+                                        .foregroundStyle(settings.theme.accent)
+                                }
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                                    .fill(settings.language == lang
+                                          ? settings.theme.accent.opacity(0.18)
+                                          : Color.white.opacity(0.06))
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+
+                Spacer(minLength: 8)
+            }
+            .padding(.horizontal, 8)
+        }
+        .background(Color.black.ignoresSafeArea())
+    }
+}
+
 struct LogoPage: View {
     let onDismiss: () -> Void
     @State private var appearedAt: Date? = nil
@@ -1110,6 +1262,8 @@ struct CookingPage: View {
 
 struct ChooseRecipePage: View {
     let onChoose: () -> Void
+    @EnvironmentObject private var settings: AppSettings
+    @State private var showSettings = false
 
     var body: some View {
         ZStack {
@@ -1119,8 +1273,22 @@ struct ChooseRecipePage: View {
                 HStack(spacing: 6) {
                     HeatBadge()
                     Spacer(minLength: 4)
+                    Button {
+                        playTapFeedback()
+                        showSettings = true
+                    } label: {
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.55))
+                            .frame(width: 24, height: 24)
+                    }
+                    .buttonStyle(.plain)
                 }
                 .padding(.top, 2)
+                .sheet(isPresented: $showSettings) {
+                    SettingsPage()
+                        .environmentObject(settings)
+                }
 
                 Spacer(minLength: 2)
 
