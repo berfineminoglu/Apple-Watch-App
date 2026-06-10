@@ -76,7 +76,7 @@ struct ContentView: View {
     @State private var screen: RootScreen = .recipePager
     @State private var recipePagerSelection: RecipePagerPage = .choose
     @State private var selectedRecipe: Recipe = .etSote
-    @State private var showLaunchSplash = true
+    @State private var showLaunchSplash = false
     @State private var wentToBackground = false
 
     // Cooking timer state (persists across navigation)
@@ -93,7 +93,7 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            settings.theme.background.ignoresSafeArea()
             screenView
 
             if showLaunchSplash {
@@ -109,7 +109,7 @@ struct ContentView: View {
             if showCookingDoneToast {
                 VStack {
                     Spacer()
-                    Text("Afiyet olsun")
+                    Text(settings.t("Afiyet olsun", "Bon appétit"))
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 16)
@@ -160,6 +160,11 @@ struct ContentView: View {
                         withAnimation(.easeInOut(duration: 0.28)) {
                             recipePagerSelection = .notifications
                         }
+                    },
+                    onKeepWarmEnabled: {
+                        cookingNotifications.append(
+                            CookingNotificationItem(recipe: selectedRecipe, timestamp: Date(), type: .keepWarm)
+                        )
                     },
                     onCookingComplete: {
                         isCooking = false
@@ -386,6 +391,7 @@ enum Recipe: String, CaseIterable, Identifiable {
 enum CookingNotificationType {
     case started
     case completed
+    case keepWarm
 }
 
 struct CookingNotificationItem: Identifiable {
@@ -470,12 +476,13 @@ extension Recipe {
 struct PageDots: View {
     let activeIndex: Int
     let count: Int
+    @EnvironmentObject private var settings: AppSettings
 
     var body: some View {
         HStack(spacing: 5) {
             ForEach(0..<count, id: \.self) { index in
                 Circle()
-                    .fill(index == activeIndex ? Color.white : Color.white.opacity(0.38))
+                    .fill(index == activeIndex ? settings.theme.foreground : settings.theme.foreground.opacity(0.38))
                     .frame(width: index == activeIndex ? 7 : 5, height: index == activeIndex ? 7 : 5)
                     .animation(.easeInOut(duration: 0.2), value: activeIndex)
             }
@@ -525,6 +532,7 @@ struct TopBar: View {
 struct RecipeSummaryCard: View {
     let recipe: Recipe
     let subtitle: String
+    @EnvironmentObject private var settings: AppSettings
 
     var body: some View {
         HStack(spacing: 8) {
@@ -532,12 +540,12 @@ struct RecipeSummaryCard: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(recipe.title)
                     .font(.system(size: 17, weight: .medium, design: .rounded))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(settings.theme.foreground)
                     .lineLimit(1)
                     .minimumScaleFactor(0.82)
                 Text(subtitle)
                     .font(.system(size: 11, weight: .regular, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(settings.theme.foreground.opacity(0.8))
                     .lineLimit(1)
             }
             Spacer(minLength: 4)
@@ -547,7 +555,7 @@ struct RecipeSummaryCard: View {
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color(red: 0.14, green: 0.14, blue: 0.14))
+                .fill(settings.theme.surface)
         )
     }
 }
@@ -555,13 +563,14 @@ struct RecipeSummaryCard: View {
 struct RecipeButtonRow: View {
     let recipe: Recipe
     let isSelected: Bool
+    @EnvironmentObject private var settings: AppSettings
 
     var body: some View {
         HStack(spacing: 10) {
             RecipeThumbnail(recipe: recipe, size: 28)
             Text(recipe.title)
                 .font(.system(size: 16, weight: .medium, design: .rounded))
-                .foregroundStyle(.white)
+                .foregroundStyle(settings.theme.foreground)
                 .lineLimit(1)
                 .minimumScaleFactor(0.82)
             Spacer(minLength: 4)
@@ -570,26 +579,27 @@ struct RecipeButtonRow: View {
         .frame(maxWidth: .infinity, minHeight: 42, maxHeight: 42)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(isSelected ? Color(red: 0.22, green: 0.22, blue: 0.22) : Color(red: 0.15, green: 0.15, blue: 0.15))
+                .fill(settings.theme.surface)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(isSelected ? Color.white.opacity(0.18) : Color.clear, lineWidth: 1)
+                .stroke(isSelected ? settings.theme.foreground.opacity(0.22) : Color.clear, lineWidth: 1)
         )
     }
 }
 
 struct RecipeChip: View {
     let label: String
+    @EnvironmentObject private var settings: AppSettings
 
     var body: some View {
         Text(label)
             .font(.system(size: 13, weight: .medium, design: .rounded))
-            .foregroundStyle(.white)
+            .foregroundStyle(settings.theme.foreground)
             .frame(maxWidth: .infinity, minHeight: 30)
             .background(
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(Color(red: 0.14, green: 0.14, blue: 0.14))
+                    .fill(settings.theme.surface)
             )
     }
 }
@@ -598,6 +608,7 @@ struct ExpandableRow: View {
     let title: String
     let lines: [String]
     @State private var expanded = false
+    @EnvironmentObject private var settings: AppSettings
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -609,17 +620,17 @@ struct ExpandableRow: View {
                 HStack {
                     Text(title)
                         .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(settings.theme.foreground)
                     Spacer(minLength: 8)
                     Image(systemName: expanded ? "chevron.up" : "chevron.down")
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.8))
+                        .foregroundStyle(settings.theme.foreground.opacity(0.8))
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 9, style: .continuous)
-                        .fill(Color(red: 0.14, green: 0.14, blue: 0.14))
+                        .fill(settings.theme.surface)
                 )
             }
             .buttonStyle(.plain)
@@ -629,7 +640,7 @@ struct ExpandableRow: View {
                     ForEach(lines, id: \.self) { line in
                         Text("• \(line)")
                             .font(.system(size: 11.5, weight: .regular, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.84))
+                            .foregroundStyle(settings.theme.foreground.opacity(0.84))
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
@@ -752,6 +763,7 @@ struct TarifSecPage: View {
     @Binding var cookingHasStarted: Bool
     let onChoose: () -> Void
     let onNotifications: () -> Void
+    let onKeepWarmEnabled: () -> Void
     let onCookingComplete: () -> Void
 
     var body: some View {
@@ -764,7 +776,8 @@ struct TarifSecPage: View {
                 runningSince: $cookingRunningSince,
                 hasStarted: $cookingHasStarted,
                 onNotifications: onNotifications,
-                onCookingComplete: onCookingComplete
+                onCookingComplete: onCookingComplete,
+                onKeepWarmEnabled: onKeepWarmEnabled
             )
         } else {
             ChooseRecipePage(onChoose: onChoose)
@@ -783,7 +796,7 @@ struct RecipesPage: View {
             settings.theme.background.ignoresSafeArea()
 
             VStack(spacing: 8) {
-                TopBar(title: "Tariflerim", titleColor: Color(red: 0.88, green: 0.18, blue: 0.22), showBack: false)
+                TopBar(title: settings.t("Tariflerim", "My Recipes"), titleColor: Color(red: 0.88, green: 0.18, blue: 0.22), showBack: false)
                     .padding(.top, 2)
 
                 ScrollView(.vertical, showsIndicators: false) {
@@ -817,10 +830,11 @@ struct StartPage: View {
     let onBack: () -> Void
     let onPlay: () -> Void
     let onChooseRecipe: () -> Void
+    @EnvironmentObject private var settings: AppSettings
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            settings.theme.background.ignoresSafeArea()
 
             VStack(spacing: 8) {
                 HStack(spacing: 6) {
@@ -849,7 +863,7 @@ struct StartPage: View {
 
                 Spacer(minLength: 8)
 
-                RecipeSummaryCard(recipe: recipe, subtitle: "Kalan süre : \(recipe.duration)")
+                RecipeSummaryCard(recipe: recipe, subtitle: settings.t("Kalan süre", "Remaining") + " : \(recipe.durationMinutes) \(settings.t("dk", "min"))")
                     .onTapGesture(perform: onChooseRecipe)
 
                 PageDots(activeIndex: 0)
@@ -1017,10 +1031,12 @@ struct CookingPage: View {
     @Binding var hasStarted: Bool
     let onNotifications: () -> Void
     let onCookingComplete: () -> Void
+    let onKeepWarmEnabled: () -> Void
 
     @EnvironmentObject private var settings: AppSettings
     @State private var completionFired = false
     @State private var keepWarmEnabled = false
+    @State private var showKeepWarmAlert = false
 
     private var totalSeconds: Int {
         recipe.durationSeconds
@@ -1068,7 +1084,7 @@ struct CookingPage: View {
             let isComplete = currentElapsed(at: context.date) >= demoDuration
             let isActive = isRunning && !isComplete
             let accent = isActive ? Color(red: 0.84, green: 0.14, blue: 0.18) : Color(red: 0.38, green: 0.72, blue: 0.22)
-            let track = Color.white.opacity(0.45)
+            let track = settings.theme.foreground.opacity(0.3)
             let buttonFill = isActive ? Color(red: 0.70, green: 0.14, blue: 0.16) : Color(red: 0.34, green: 0.64, blue: 0.22)
 
             ZStack {
@@ -1077,8 +1093,12 @@ struct CookingPage: View {
                 VStack(spacing: 8) {
                     HStack(spacing: 6) {
                         HeatBadge(isActive: keepWarmEnabled) {
-                            playTapFeedback()
+                            playTapFeedback(.notification)
                             keepWarmEnabled.toggle()
+                            if keepWarmEnabled {
+                                showKeepWarmAlert = true
+                                onKeepWarmEnabled()
+                            }
                         }
                         Spacer(minLength: 4)
                     }
@@ -1133,7 +1153,7 @@ struct CookingPage: View {
 
                     RecipeSummaryCard(
                         recipe: recipe,
-                        subtitle: isComplete ? "Tamamlandı" : isActive ? "Kalan süre : \(recipe.remainingText(for: remainingSeconds))" : "Duraklatıldı"
+                        subtitle: isComplete ? settings.t("Tamamlandı", "Completed") : isActive ? settings.t("Kalan süre", "Remaining") + " : \(max(0, Int(ceil(Double(remainingSeconds) / 60.0)))) \(settings.t("dk", "min"))" : settings.t("Duraklatıldı", "Paused")
                     )
                     .onTapGesture(perform: onNotifications)
 
@@ -1146,6 +1166,11 @@ struct CookingPage: View {
                         completionFired = true
                         onCookingComplete()
                     }
+                }
+                .alert(settings.t("Sıcak Tutma Aktif", "Keep Warm Active"), isPresented: $showKeepWarmAlert) {
+                    Button(settings.t("Tamam", "OK"), role: .cancel) {}
+                } message: {
+                    Text(settings.t("Yemeğiniz piştikten sonra sıcak tutma modunda kalacaktır.", "Your food will stay in keep warm mode after cooking."))
                 }
             }
         }
@@ -1171,14 +1196,14 @@ struct ChooseRecipePage: View {
                 Button(action: onChoose) {
                     ZStack {
                         Circle()
-                            .stroke(Color.white.opacity(0.7), style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [14, 8]))
+                            .stroke(settings.theme.foreground.opacity(0.5), style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [14, 8]))
                             .frame(width: 82, height: 82)
                         Circle()
-                            .fill(Color(red: 0.47, green: 0.47, blue: 0.47))
+                            .fill(settings.theme.surface)
                             .frame(width: 60, height: 60)
                         Image(systemName: "play.fill")
                             .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(settings.theme.foreground)
                     }
                 }
                 .buttonStyle(.plain)
@@ -1186,7 +1211,7 @@ struct ChooseRecipePage: View {
                 Spacer(minLength: 4)
 
                 Button(action: onChoose) {
-                    Text("Tarif Seçiniz.")
+                    Text(settings.t("Tarif Seçiniz.", "Choose a Recipe"))
                         .font(.system(size: 15, weight: .medium, design: .rounded))
                         .foregroundStyle(Color(red: 0.77, green: 0.08, blue: 0.13))
                         .frame(maxWidth: .infinity, minHeight: 38)
@@ -1209,41 +1234,48 @@ struct ChooseRecipePage: View {
 struct NotificationRow: View {
     let notif: CookingNotificationItem
     let onReturnToCooking: () -> Void
+    @EnvironmentObject private var settings: AppSettings
 
     private var isCompleted: Bool { notif.type == .completed }
+    private var isKeepWarm: Bool  { notif.type == .keepWarm  }
+
+    private var iconColor: Color {
+        switch notif.type {
+        case .completed: return Color(red: 0.22, green: 0.60, blue: 0.14)
+        case .keepWarm:  return Color(red: 1.0,  green: 0.52, blue: 0.08)
+        case .started:   return Color(red: 0.86, green: 0.12, blue: 0.16)
+        }
+    }
+
+    private var borderColor: Color { iconColor.opacity(0.35) }
 
     var body: some View {
         let content = HStack(spacing: 10) {
-            if isCompleted {
-                ZStack {
-                    Circle()
-                        .fill(Color(red: 0.22, green: 0.60, blue: 0.14))
-                        .frame(width: 26, height: 26)
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(.white)
-                }
-            } else {
-                ZStack {
-                    Circle()
-                        .fill(Color(red: 0.86, green: 0.12, blue: 0.16))
-                        .frame(width: 26, height: 26)
-                    Image(systemName: "play.fill")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundStyle(.white)
-                }
+            ZStack {
+                Circle()
+                    .fill(iconColor)
+                    .frame(width: 26, height: 26)
+                Image(systemName: isCompleted ? "checkmark" : isKeepWarm ? "flame.fill" : "play.fill")
+                    .font(.system(size: isKeepWarm ? 11 : 9, weight: .bold))
+                    .foregroundStyle(.white)
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(isCompleted
-                     ? "\(notif.recipe.title) hazır!"
-                     : "\(notif.recipe.title) pişmeye başladı")
+                     ? "\(notif.recipe.title) \(settings.t("hazır!", "ready!"))"
+                     : isKeepWarm
+                     ? "\(notif.recipe.title) \(settings.t("sıcak tutmada", "on keep warm"))"
+                     : "\(notif.recipe.title) \(settings.t("pişmeye başladı", "started cooking"))")
                     .font(.system(size: 12.5, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(settings.theme.foreground)
                     .fixedSize(horizontal: false, vertical: true)
-                Text(isCompleted ? "Afiyet olsun 🎉" : "Pişirme ekranına dön")
+                Text(isCompleted
+                     ? settings.t("Afiyet olsun 🎉", "Enjoy your meal 🎉")
+                     : isKeepWarm
+                     ? settings.t("Sıcak tutma modu aktif 🔥", "Keep warm mode active 🔥")
+                     : settings.t("Pişirme ekranına dön", "Return to cooking"))
                     .font(.system(size: 10.5, weight: .regular, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.62))
+                    .foregroundStyle(settings.theme.foreground.opacity(0.62))
             }
 
             Spacer(minLength: 0)
@@ -1253,23 +1285,18 @@ struct NotificationRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(isCompleted
-                      ? Color(red: 0.13, green: 0.22, blue: 0.12)
-                      : Color(red: 0.18, green: 0.14, blue: 0.14))
+                .fill(settings.theme.surface)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(isCompleted
-                        ? Color(red: 0.22, green: 0.60, blue: 0.14).opacity(0.35)
-                        : Color(red: 0.86, green: 0.12, blue: 0.16).opacity(0.25),
-                        lineWidth: 1)
+                .stroke(borderColor, lineWidth: 1)
         )
 
-        if isCompleted {
-            content
-        } else {
+        if notif.type == .started {
             Button(action: onReturnToCooking) { content }
                 .buttonStyle(.plain)
+        } else {
+            content
         }
     }
 }
@@ -1287,13 +1314,13 @@ struct NotificationsPage: View {
             settings.theme.background.ignoresSafeArea()
 
             VStack(spacing: 8) {
-                TopBar(title: "Bildirimler", titleColor: Color(red: 0.88, green: 0.18, blue: 0.22), showBack: false)
+                TopBar(title: settings.t("Bildirimler", "Notifications"), titleColor: Color(red: 0.88, green: 0.18, blue: 0.22), showBack: false)
                     .padding(.top, 2)
 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 8) {
                         if notifications.isEmpty {
-                            Text("Henüz bildirim yok")
+                            Text(settings.t("Henüz bildirim yok", "No notifications yet"))
                                 .font(.system(size: 12, weight: .regular, design: .rounded))
                                 .foregroundStyle(settings.theme.foreground.opacity(0.4))
                                 .frame(maxWidth: .infinity)
@@ -1348,25 +1375,25 @@ struct DetailPage: View {
     let isCooking: Bool
     let onBack: () -> Void
     let onContinue: () -> Void
-
+    @EnvironmentObject private var settings: AppSettings
     @State private var showConflictAlert = false
 
     var body: some View {
         ZStack(alignment: .top) {
-            Color.black.ignoresSafeArea()
+            settings.theme.background.ignoresSafeArea()
 
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 10) {
                     RecipeHeaderCard(recipe: recipe)
 
                     HStack(spacing: 10) {
-                        RecipeChip(label: recipe.duration)
+                        RecipeChip(label: "\(recipe.durationMinutes) \(settings.t("dk", "min"))")
                         RecipeChip(label: recipe.calories)
                     }
 
                     VStack(spacing: 8) {
-                        ExpandableRow(title: "Hazırlanışı", lines: recipe.preparationLines)
-                        ExpandableRow(title: "Malzemeler", lines: recipe.ingredientLines)
+                        ExpandableRow(title: settings.t("Hazırlanışı", "Preparation"), lines: recipe.preparationLines)
+                        ExpandableRow(title: settings.t("Malzemeler", "Ingredients"), lines: recipe.ingredientLines)
                     }
 
                     Button(action: {
@@ -1376,7 +1403,7 @@ struct DetailPage: View {
                             onContinue()
                         }
                     }) {
-                        Text("Tarifi Başlat")
+                        Text(settings.t("Tarifi Başlat", "Start Recipe"))
                             .font(.system(size: 16, weight: .semibold, design: .rounded))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity, minHeight: 42)
@@ -1386,8 +1413,8 @@ struct DetailPage: View {
                             )
                     }
                     .buttonStyle(.plain)
-                    .alert("Şu anda yapılan tarifiniz var", isPresented: $showConflictAlert) {
-                        Button("Tamam", role: .cancel) {}
+                    .alert(settings.t("Şu anda yapılan tarifiniz var", "A recipe is already cooking"), isPresented: $showConflictAlert) {
+                        Button(settings.t("Tamam", "OK"), role: .cancel) {}
                     }
 
                     PageDots(activeIndex: 1)
@@ -1419,10 +1446,11 @@ struct ConfirmPage: View {
     let recipe: Recipe
     let onBack: () -> Void
     let onStart: () -> Void
+    @EnvironmentObject private var settings: AppSettings
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            settings.theme.background.ignoresSafeArea()
 
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 10) {
@@ -1444,16 +1472,16 @@ struct ConfirmPage: View {
 
                     HStack(spacing: 10) {
                         RecipeChip(label: recipe.calories)
-                        RecipeChip(label: recipe.duration)
+                        RecipeChip(label: "\(recipe.durationMinutes) \(settings.t("dk", "min"))")
                     }
 
                     VStack(spacing: 8) {
-                        ExpandableRow(title: "Hazırlanışı", lines: recipe.preparationLines)
-                        ExpandableRow(title: "Malzemeler", lines: recipe.ingredientLines)
+                        ExpandableRow(title: settings.t("Hazırlanışı", "Preparation"), lines: recipe.preparationLines)
+                        ExpandableRow(title: settings.t("Malzemeler", "Ingredients"), lines: recipe.ingredientLines)
                     }
 
                     Button(action: onStart) {
-                        Text("Tarifi Onayla")
+                        Text(settings.t("Tarifi Onayla", "Confirm Recipe"))
                             .font(.system(size: 16, weight: .semibold, design: .rounded))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity, minHeight: 38)
@@ -1475,6 +1503,7 @@ struct ConfirmPage: View {
 
 struct RecipeHeaderCard: View {
     let recipe: Recipe
+    @EnvironmentObject private var settings: AppSettings
 
     var body: some View {
         HStack(spacing: 10) {
@@ -1489,7 +1518,7 @@ struct RecipeHeaderCard: View {
                     .foregroundStyle(.white)
                     .lineLimit(1)
                     .minimumScaleFactor(0.82)
-                Text("Tarif ayrıntıları")
+                Text(settings.t("Tarif ayrıntıları", "Recipe details"))
                     .font(.system(size: 11, weight: .regular, design: .rounded))
                     .foregroundStyle(.white.opacity(0.74))
                     .lineLimit(1)
@@ -1508,6 +1537,7 @@ struct RecipeHeaderCard: View {
 
 struct RecipeConfirmationCard: View {
     let recipe: Recipe
+    @EnvironmentObject private var settings: AppSettings
 
     var body: some View {
         ZStack(alignment: .leading) {
@@ -1523,7 +1553,7 @@ struct RecipeConfirmationCard: View {
                         .foregroundStyle(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.82)
-                    Text("Onay bekliyor")
+                    Text(settings.t("Onay bekliyor", "Awaiting confirmation"))
                         .font(.system(size: 10.5, weight: .regular, design: .rounded))
                         .foregroundStyle(.white.opacity(0.76))
                 }
