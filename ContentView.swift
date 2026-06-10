@@ -24,7 +24,7 @@ final class AppSettings: ObservableObject {
         var background: Color {
             switch self {
             case .dark:  return .black
-            case .light: return Color(red: 0.94, green: 0.94, blue: 0.96)
+            case .light: return .white
             case .red:   return Color(red: 0.14, green: 0.06, blue: 0.06)
             case .blue:  return Color(red: 0.06, green: 0.10, blue: 0.16)
             }
@@ -32,13 +32,13 @@ final class AppSettings: ObservableObject {
         var foreground: Color {
             switch self {
             case .dark, .red, .blue: return .white
-            case .light: return Color(red: 0.10, green: 0.10, blue: 0.12)
+            case .light: return Color(red: 0.08, green: 0.08, blue: 0.10)
             }
         }
         var surface: Color {
             switch self {
             case .dark:  return Color(red: 0.14, green: 0.14, blue: 0.14)
-            case .light: return Color(red: 0.76, green: 0.76, blue: 0.78)
+            case .light: return Color(red: 0.88, green: 0.88, blue: 0.90)
             case .red:   return Color(red: 0.20, green: 0.10, blue: 0.10)
             case .blue:  return Color(red: 0.10, green: 0.14, blue: 0.22)
             }
@@ -215,7 +215,7 @@ struct ContentView: View {
                 .tag(RecipePagerPage.notifications)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .background(Color.black.ignoresSafeArea())
+            .background(settings.theme.background.ignoresSafeArea())
         case .detail:
             DetailPage(
                 recipe: selectedRecipe,
@@ -871,7 +871,7 @@ struct SettingsPage: View {
                 // Header
                 Text(settings.t("Ayarlar", "Settings"))
                     .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(settings.theme.foreground)
                     .padding(.top, 4)
 
                 // Theme
@@ -879,7 +879,7 @@ struct SettingsPage: View {
                     Label(settings.t("Tema", "Theme"),
                           systemImage: "paintpalette.fill")
                         .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(settings.theme.foreground.opacity(0.6))
 
                     ForEach(AppSettings.AppTheme.allCases) { theme in
                         Button {
@@ -892,7 +892,7 @@ struct SettingsPage: View {
                                     .frame(width: 10, height: 10)
                                 Text(theme.rawValue)
                                     .font(.system(size: 14, weight: .medium, design: .rounded))
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(settings.theme.foreground)
                                 Spacer()
                                 if settings.theme == theme {
                                     Image(systemName: "checkmark")
@@ -906,35 +906,35 @@ struct SettingsPage: View {
                                 RoundedRectangle(cornerRadius: 9, style: .continuous)
                                     .fill(settings.theme == theme
                                           ? theme.accent.opacity(0.18)
-                                          : Color.white.opacity(0.06))
+                                          : settings.theme.foreground.opacity(0.06))
                             )
                         }
                         .buttonStyle(.plain)
                     }
                 }
 
-                Divider().background(Color.white.opacity(0.12))
+                Divider().background(settings.theme.foreground.opacity(0.12))
 
                 // Voice
                 HStack {
                     Label(settings.t("Ses", "Voice"),
                           systemImage: settings.voiceEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
                         .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(settings.theme.foreground.opacity(0.6))
                     Spacer()
                     Toggle("", isOn: $settings.voiceEnabled)
                         .labelsHidden()
                         .tint(settings.theme.accent)
                 }
 
-                Divider().background(Color.white.opacity(0.12))
+                Divider().background(settings.theme.foreground.opacity(0.12))
 
                 // Language
                 VStack(alignment: .leading, spacing: 6) {
                     Label(settings.t("Dil", "Language"),
                           systemImage: "globe")
                         .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(settings.theme.foreground.opacity(0.6))
 
                     ForEach(AppSettings.AppLanguage.allCases) { lang in
                         Button {
@@ -944,7 +944,7 @@ struct SettingsPage: View {
                             HStack {
                                 Text(lang.rawValue)
                                     .font(.system(size: 14, weight: .medium, design: .rounded))
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(settings.theme.foreground)
                                 Spacer()
                                 if settings.language == lang {
                                     Image(systemName: "checkmark")
@@ -958,7 +958,7 @@ struct SettingsPage: View {
                                 RoundedRectangle(cornerRadius: 9, style: .continuous)
                                     .fill(settings.language == lang
                                           ? settings.theme.accent.opacity(0.18)
-                                          : Color.white.opacity(0.06))
+                                          : settings.theme.foreground.opacity(0.06))
                             )
                         }
                         .buttonStyle(.plain)
@@ -969,7 +969,7 @@ struct SettingsPage: View {
             }
             .padding(.horizontal, 8)
         }
-        .background(Color.black.ignoresSafeArea())
+        .background(settings.theme.background.ignoresSafeArea())
     }
 }
 
@@ -1011,6 +1011,7 @@ struct CookingPage: View {
     let onNotifications: () -> Void
     let onCookingComplete: () -> Void
 
+    @EnvironmentObject private var settings: AppSettings
     @State private var completionFired = false
     @State private var keepWarmEnabled = false
 
@@ -1064,7 +1065,7 @@ struct CookingPage: View {
             let buttonFill = isActive ? Color(red: 0.70, green: 0.14, blue: 0.16) : Color(red: 0.34, green: 0.64, blue: 0.22)
 
             ZStack {
-                Color.black.ignoresSafeArea()
+                settings.theme.background.ignoresSafeArea()
 
                 VStack(spacing: 8) {
                     HStack(spacing: 6) {
