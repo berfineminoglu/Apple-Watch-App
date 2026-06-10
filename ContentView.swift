@@ -10,7 +10,6 @@ struct ContentView: View {
         case launch
         case recipePager
         case detail
-        case cooking
     }
 
     private enum RecipePagerPage: Int {
@@ -51,7 +50,7 @@ struct ContentView: View {
             if showCookingDoneToast {
                 VStack {
                     Spacer()
-                    Text("Yemeğiniz pişti")
+                    Text("Afiyet olsun")
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 16)
@@ -95,11 +94,42 @@ struct ContentView: View {
             )
         case .recipePager:
             TabView(selection: $recipePagerSelection) {
-                ChooseRecipePage(
+                TarifSecPage(
+                    isCooking: isCooking,
+                    recipe: selectedRecipe,
+                    demoDuration: demoDuration,
+                    cookingIsRunning: $cookingIsRunning,
+                    cookingAccumulatedElapsed: $cookingAccumulatedElapsed,
+                    cookingRunningSince: $cookingRunningSince,
+                    cookingHasStarted: $cookingHasStarted,
                     onChoose: {
                         playTapFeedback()
                         withAnimation(.easeInOut(duration: 0.28)) {
                             recipePagerSelection = .recipes
+                        }
+                    },
+                    onNotifications: {
+                        playTapFeedback()
+                        withAnimation(.easeInOut(duration: 0.28)) {
+                            recipePagerSelection = .notifications
+                        }
+                    },
+                    onCookingComplete: {
+                        isCooking = false
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showCookingDoneToast = true
+                        }
+                        Task {
+                            try? await Task.sleep(nanoseconds: 2_000_000_000)
+                            await MainActor.run {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    showCookingDoneToast = false
+                                }
+                                cookingAccumulatedElapsed = 0
+                                cookingRunningSince = nil
+                                cookingIsRunning = false
+                                cookingHasStarted = false
+                            }
                         }
                     }
                 )
@@ -128,7 +158,7 @@ struct ContentView: View {
                     onReturnToCooking: {
                         playTapFeedback()
                         withAnimation(.easeInOut(duration: 0.28)) {
-                            screen = .cooking
+                            recipePagerSelection = .choose
                         }
                     }
                 )
@@ -158,37 +188,8 @@ struct ContentView: View {
                         CookingNotificationItem(recipe: selectedRecipe, timestamp: Date())
                     )
                     withAnimation(.easeInOut(duration: 0.28)) {
-                        screen = .cooking
-                    }
-                }
-            )
-        case .cooking:
-            CookingPage(
-                recipe: selectedRecipe,
-                demoDuration: demoDuration,
-                isRunning: $cookingIsRunning,
-                accumulatedElapsed: $cookingAccumulatedElapsed,
-                runningSince: $cookingRunningSince,
-                hasStarted: $cookingHasStarted,
-                onNotifications: {
-                    playTapFeedback()
-                    withAnimation(.easeInOut(duration: 0.28)) {
-                        recipePagerSelection = .notifications
+                        recipePagerSelection = .choose
                         screen = .recipePager
-                    }
-                },
-                onCookingComplete: {
-                    isCooking = false
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        showCookingDoneToast = true
-                    }
-                    Task {
-                        try? await Task.sleep(nanoseconds: 2_500_000_000)
-                        await MainActor.run {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showCookingDoneToast = false
-                            }
-                        }
                     }
                 }
             )
@@ -759,6 +760,36 @@ struct CompactActionCard: View {
 }
 
 // MARK: - Pages
+
+struct TarifSecPage: View {
+    let isCooking: Bool
+    let recipe: Recipe
+    let demoDuration: TimeInterval
+    @Binding var cookingIsRunning: Bool
+    @Binding var cookingAccumulatedElapsed: TimeInterval
+    @Binding var cookingRunningSince: Date?
+    @Binding var cookingHasStarted: Bool
+    let onChoose: () -> Void
+    let onNotifications: () -> Void
+    let onCookingComplete: () -> Void
+
+    var body: some View {
+        if isCooking {
+            CookingPage(
+                recipe: recipe,
+                demoDuration: demoDuration,
+                isRunning: $cookingIsRunning,
+                accumulatedElapsed: $cookingAccumulatedElapsed,
+                runningSince: $cookingRunningSince,
+                hasStarted: $cookingHasStarted,
+                onNotifications: onNotifications,
+                onCookingComplete: onCookingComplete
+            )
+        } else {
+            ChooseRecipePage(onChoose: onChoose)
+        }
+    }
+}
 
 struct HomePage: View {
     let recipe: Recipe
