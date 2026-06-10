@@ -415,6 +415,12 @@ window.addEventListener('mouseup',e=>{
   navigate(dx<0?1:-1);
 });
 
+// keyboard arrow keys
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight') navigate(1);
+  if(e.key==='ArrowLeft')  navigate(-1);
+});
+
 function navigate(dir){
   const pages=['choose','recipes','notifs'],cur=pages.indexOf(currentScreen);
   if(cur===-1) return;

@@ -864,25 +864,11 @@ struct VestelLogoBadge: View {
     let size: CGFloat
 
     var body: some View {
-        Circle()
-            .fill(Color.white)
+        Image("VestelLogo")
+            .resizable()
+            .scaledToFit()
             .frame(width: size, height: size)
-            .overlay(
-                Text("V")
-                    .font(.system(size: size * 0.52, weight: .heavy, design: .rounded))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [
-                                Color(red: 0.93, green: 0.14, blue: 0.18),
-                                Color(red: 0.98, green: 0.58, blue: 0.12)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .offset(y: 1)
-            )
-            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 1)
+            .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
     }
 }
 
