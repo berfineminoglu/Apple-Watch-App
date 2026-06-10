@@ -58,12 +58,9 @@ struct ContentView: View {
     }
 
     @StateObject private var settings = AppSettings()
-    @Environment(\.scenePhase) private var scenePhase
     @State private var screen: RootScreen = .recipePager
-    @State private var recipePagerSelection: RecipePagerPage = .recipes
+    @State private var recipePagerSelection: RecipePagerPage = .choose
     @State private var selectedRecipe: Recipe = .etSote
-    @State private var showLaunchSplash = true
-    @State private var wentToBackground = false
 
     // Cooking timer state (persists across navigation)
     @State private var isCooking = false
@@ -81,17 +78,6 @@ struct ContentView: View {
         ZStack {
             Color.black.ignoresSafeArea()
             screenView
-
-            if showLaunchSplash {
-                LogoPage(onDismiss: {
-                    withAnimation(.easeInOut(duration: 0.35)) {
-                        showLaunchSplash = false
-                        recipePagerSelection = .choose
-                    }
-                })
-                .transition(.opacity)
-                .zIndex(1)
-            }
 
             if showCookingDoneToast {
                 VStack {
@@ -113,14 +99,6 @@ struct ContentView: View {
             }
         }
         .environmentObject(settings)
-        .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .background {
-                wentToBackground = true
-            } else if newPhase == .active && wentToBackground {
-                wentToBackground = false
-                showLaunchSplash = true
-            }
-        }
     }
 
     @ViewBuilder
@@ -641,49 +619,6 @@ struct HeatBadge: View {
     }
 }
 
-struct HomeBubble: View {
-    let symbol: String
-    let background: Color
-    var symbolColor: Color = .white
-    var size: CGFloat = 28
-    var customText: String? = nil
-    var customTextColor: Color = .black
-    var action: (() -> Void)? = nil
-
-    var body: some View {
-        let icon = ZStack {
-            Circle()
-                .fill(background)
-
-            if let customText {
-                Text(customText)
-                    .font(.system(size: 8, weight: .bold, design: .rounded))
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(customTextColor)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.7)
-            } else {
-                Image(systemName: symbol)
-                    .font(.system(size: max(10, size * 0.34), weight: .bold))
-                    .foregroundStyle(symbolColor)
-            }
-        }
-        .frame(width: size, height: size)
-        .shadow(color: .black.opacity(0.3), radius: 1.5, x: 0, y: 1)
-
-        Group {
-            if let action {
-                Button(action: action) {
-                    icon
-                }
-                .buttonStyle(.plain)
-                .contentShape(Circle())
-            } else {
-                icon
-            }
-        }
-    }
-}
 
 struct StatusPill: View {
     let title: String
@@ -706,48 +641,6 @@ struct StatusPill: View {
     }
 }
 
-struct PrimaryLaunchCard: View {
-    let recipe: Recipe
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                VestelLogoBadge(size: 36)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Pişirme akışını aç")
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-
-                    Text("Son tarif: \(recipe.title)")
-                        .font(.system(size: 11.5, weight: .regular, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.74))
-                        .lineLimit(1)
-                }
-
-                Spacer(minLength: 4)
-
-                Image(systemName: "play.fill")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.92))
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            .frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color.white.opacity(0.07))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(recipe.theme.accent.opacity(0.20), lineWidth: 1)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-}
 
 struct CompactActionCard: View {
     let title: String
@@ -835,76 +728,6 @@ struct TarifSecPage: View {
     }
 }
 
-struct HomePage: View {
-    let recipe: Recipe
-    let onCenterLaunch: () -> Void
-    let onOpenRecipes: () -> Void
-    let onOpenNotifications: () -> Void
-
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-
-            VStack(spacing: 8) {
-                Spacer(minLength: 4)
-
-                HStack(spacing: 8) {
-                    HomeBubble(symbol: "cloud.fill", background: Color(red: 0.15, green: 0.49, blue: 0.97), size: 27)
-                    HomeBubble(symbol: "calendar", background: Color.white, symbolColor: .black, size: 34, customText: "Tue\n15", customTextColor: .red)
-                    HomeBubble(symbol: "square.grid.2x2.fill", background: Color(red: 0.45, green: 0.24, blue: 0.93), size: 27)
-                }
-
-                HStack(spacing: 10) {
-                    HomeBubble(symbol: "location.fill", background: Color.white, symbolColor: Color(red: 0.15, green: 0.49, blue: 0.97), size: 27)
-
-                    Button(action: onCenterLaunch) {
-                        VestelLogoBadge(size: 52)
-                            .frame(width: 66, height: 66)
-                            .background(
-                                Circle()
-                                    .fill(Color.white.opacity(0.02))
-                                    .frame(width: 66, height: 66)
-                            )
-                    }
-                    .buttonStyle(.plain)
-                    .contentShape(Circle())
-                    .zIndex(10)
-
-                    HomeBubble(symbol: "bell.fill", background: Color(red: 0.84, green: 0.88, blue: 0.95), symbolColor: Color(red: 0.12, green: 0.48, blue: 0.88), size: 27, action: onOpenNotifications)
-                }
-
-                HStack(spacing: 8) {
-                    HomeBubble(symbol: "globe", background: Color(red: 0.99, green: 0.53, blue: 0.11), size: 27)
-                    HomeBubble(symbol: "book.fill", background: Color(red: 1.0, green: 0.60, blue: 0.15), size: 27, action: onOpenRecipes)
-                    HomeBubble(symbol: "music.note", background: Color(red: 0.96, green: 0.31, blue: 0.47), size: 27)
-                }
-
-                HStack(spacing: 8) {
-                    HomeBubble(symbol: "circle.grid.3x3.fill", background: Color(red: 0.76, green: 0.85, blue: 0.24), symbolColor: .black, size: 25)
-                    HomeBubble(symbol: "waveform.path.ecg", background: Color(red: 0.96, green: 0.21, blue: 0.27), size: 25)
-                    HomeBubble(symbol: "figure.run", background: Color(red: 0.75, green: 0.95, blue: 0.24), symbolColor: .black, size: 25)
-                }
-
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, 8)
-            .padding(.top, 6)
-            .padding(.bottom, 4)
-        }
-    }
-}
-
-struct VestelLogoBadge: View {
-    let size: CGFloat
-
-    var body: some View {
-        Image("VestelLogo")
-            .resizable()
-            .scaledToFit()
-            .frame(width: size, height: size)
-            .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
-    }
-}
 
 struct RecipesPage: View {
     @Binding var selectedRecipe: Recipe
@@ -1105,24 +928,6 @@ struct SettingsPage: View {
     }
 }
 
-struct LogoPage: View {
-    let onDismiss: () -> Void
-    @State private var appearedAt: Date? = nil
-
-    var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            VestelLogoBadge(size: 72)
-        }
-        .onAppear {
-            appearedAt = Date()
-        }
-        .task {
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
-            onDismiss()
-        }
-    }
-}
 
 struct CookingPage: View {
     let recipe: Recipe
