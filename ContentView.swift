@@ -58,9 +58,12 @@ struct ContentView: View {
     }
 
     @StateObject private var settings = AppSettings()
+    @Environment(\.scenePhase) private var scenePhase
     @State private var screen: RootScreen = .recipePager
     @State private var recipePagerSelection: RecipePagerPage = .choose
     @State private var selectedRecipe: Recipe = .etSote
+    @State private var showLaunchSplash = true
+    @State private var wentToBackground = false
 
     // Cooking timer state (persists across navigation)
     @State private var isCooking = false
@@ -78,6 +81,16 @@ struct ContentView: View {
         ZStack {
             Color.black.ignoresSafeArea()
             screenView
+
+            if showLaunchSplash {
+                LogoPage(onDismiss: {
+                    withAnimation(.easeInOut(duration: 0.35)) {
+                        showLaunchSplash = false
+                    }
+                })
+                .transition(.opacity)
+                .zIndex(1)
+            }
 
             if showCookingDoneToast {
                 VStack {
@@ -99,6 +112,14 @@ struct ContentView: View {
             }
         }
         .environmentObject(settings)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background {
+                wentToBackground = true
+            } else if newPhase == .active && wentToBackground {
+                wentToBackground = false
+                showLaunchSplash = true
+            }
+        }
     }
 
     @ViewBuilder
@@ -928,6 +949,33 @@ struct SettingsPage: View {
     }
 }
 
+// MARK: - Splash Screen
+
+struct VestelLogoBadge: View {
+    let size: CGFloat
+    var body: some View {
+        Image("VestelLogo")
+            .resizable()
+            .scaledToFit()
+            .frame(width: size, height: size)
+            .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+    }
+}
+
+struct LogoPage: View {
+    let onDismiss: () -> Void
+
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            VestelLogoBadge(size: 72)
+        }
+        .task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            onDismiss()
+        }
+    }
+}
 
 struct CookingPage: View {
     let recipe: Recipe
