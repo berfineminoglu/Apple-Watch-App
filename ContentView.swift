@@ -23,10 +23,24 @@ final class AppSettings: ObservableObject {
         }
         var background: Color {
             switch self {
-            case .dark:  return Color(red: 0.10, green: 0.10, blue: 0.10)
+            case .dark:  return .black
             case .light: return Color(red: 0.94, green: 0.94, blue: 0.96)
             case .red:   return Color(red: 0.14, green: 0.06, blue: 0.06)
             case .blue:  return Color(red: 0.06, green: 0.10, blue: 0.16)
+            }
+        }
+        var foreground: Color {
+            switch self {
+            case .dark, .red, .blue: return .white
+            case .light: return Color(red: 0.10, green: 0.10, blue: 0.12)
+            }
+        }
+        var surface: Color {
+            switch self {
+            case .dark:  return Color(red: 0.14, green: 0.14, blue: 0.14)
+            case .light: return Color(red: 0.76, green: 0.76, blue: 0.78)
+            case .red:   return Color(red: 0.20, green: 0.10, blue: 0.10)
+            case .blue:  return Color(red: 0.10, green: 0.14, blue: 0.22)
             }
         }
     }
@@ -627,16 +641,25 @@ struct ExpandableRow: View {
 }
 
 struct HeatBadge: View {
+    var isActive: Bool = false
+    var onToggle: (() -> Void)? = nil
+
     var body: some View {
-        Circle()
-            .fill(Color.red)
+        let badge = Circle()
+            .fill(isActive ? Color(red: 1.0, green: 0.52, blue: 0.08) : Color.red)
             .frame(width: 24, height: 24)
             .overlay(
                 Image(systemName: "flame.fill")
                     .font(.system(size: 11, weight: .bold))
                     .foregroundStyle(.white)
             )
-            .accessibilityHidden(true)
+        Group {
+            if let onToggle {
+                Button(action: onToggle) { badge }.buttonStyle(.plain)
+            } else {
+                badge
+            }
+        }
     }
 }
 
@@ -753,10 +776,11 @@ struct TarifSecPage: View {
 struct RecipesPage: View {
     @Binding var selectedRecipe: Recipe
     let onContinue: () -> Void
+    @EnvironmentObject private var settings: AppSettings
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            settings.theme.background.ignoresSafeArea()
 
             VStack(spacing: 8) {
                 TopBar(title: "Tariflerim", titleColor: Color(red: 0.88, green: 0.18, blue: 0.22), showBack: false)
@@ -988,6 +1012,7 @@ struct CookingPage: View {
     let onCookingComplete: () -> Void
 
     @State private var completionFired = false
+    @State private var keepWarmEnabled = false
 
     private var totalSeconds: Int {
         recipe.durationSeconds
@@ -1043,7 +1068,10 @@ struct CookingPage: View {
 
                 VStack(spacing: 8) {
                     HStack(spacing: 6) {
-                        HeatBadge()
+                        HeatBadge(isActive: keepWarmEnabled) {
+                            playTapFeedback()
+                            keepWarmEnabled.toggle()
+                        }
                         Spacer(minLength: 4)
                     }
                     .padding(.top, 2)
@@ -1119,11 +1147,10 @@ struct CookingPage: View {
 struct ChooseRecipePage: View {
     let onChoose: () -> Void
     @EnvironmentObject private var settings: AppSettings
-    @State private var showSettings = false
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            settings.theme.background.ignoresSafeArea()
 
             VStack(spacing: 6) {
                 HStack {
@@ -1157,7 +1184,7 @@ struct ChooseRecipePage: View {
                         .frame(maxWidth: .infinity, minHeight: 38)
                         .background(
                             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(Color(red: 0.14, green: 0.14, blue: 0.14))
+                                .fill(settings.theme.surface)
                         )
                 }
                 .buttonStyle(.plain)
@@ -1167,30 +1194,6 @@ struct ChooseRecipePage: View {
             .padding(.horizontal, 4)
             .padding(.top, 4)
             .padding(.bottom, 4)
-
-            // Gear button overlaid below the system clock area
-            VStack {
-                HStack {
-                    Spacer()
-                    Button {
-                        playTapFeedback()
-                        showSettings = true
-                    } label: {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.55))
-                            .frame(width: 28, height: 28)
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(.top, 30)
-                .padding(.trailing, 6)
-                Spacer()
-            }
-            .sheet(isPresented: $showSettings) {
-                SettingsPage()
-                    .environmentObject(settings)
-            }
         }
     }
 }
@@ -1268,10 +1271,12 @@ struct NotificationsPage: View {
     let notifications: [CookingNotificationItem]
     let onOpenRecipe: () -> Void
     let onReturnToCooking: () -> Void
+    @EnvironmentObject private var settings: AppSettings
+    @State private var showSettings = false
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            settings.theme.background.ignoresSafeArea()
 
             VStack(spacing: 8) {
                 TopBar(title: "Bildirimler", titleColor: Color(red: 0.88, green: 0.18, blue: 0.22), showBack: false)
@@ -1282,7 +1287,7 @@ struct NotificationsPage: View {
                         if notifications.isEmpty {
                             Text("Henüz bildirim yok")
                                 .font(.system(size: 12, weight: .regular, design: .rounded))
-                                .foregroundStyle(.white.opacity(0.4))
+                                .foregroundStyle(settings.theme.foreground.opacity(0.4))
                                 .frame(maxWidth: .infinity)
                                 .padding(.top, 20)
                         } else {
@@ -1303,6 +1308,29 @@ struct NotificationsPage: View {
             }
             .padding(.horizontal, 4)
             .padding(.vertical, 6)
+
+            // Ayarlar tuşu — sağ üst, saat göstergesinin altı
+            VStack {
+                HStack {
+                    Spacer()
+                    Button {
+                        playTapFeedback()
+                        showSettings = true
+                    } label: {
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(settings.theme.foreground.opacity(0.55))
+                            .frame(width: 28, height: 28)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.top, 30)
+                .padding(.trailing, 6)
+                Spacer()
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsPage().environmentObject(settings)
+            }
         }
     }
 }
