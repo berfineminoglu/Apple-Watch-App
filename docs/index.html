@@ -6,506 +6,514 @@
 <title>Vestel Multicooker – Apple Watch</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff;padding:20px;text-align:center}
-h1{font-size:18px;font-weight:700;margin-bottom:4px;text-align:center}
-.subtitle{font-size:12px;color:#888;margin-bottom:24px;text-align:center}
+body{
+  background:#0e0e0e;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  color:#fff;padding:32px 16px;
+}
+h1{font-size:22px;font-weight:700;margin-bottom:6px;text-align:center;letter-spacing:-.3px}
+.subtitle{font-size:13px;color:#666;margin-bottom:32px;text-align:center}
 
-/* ── WATCH SHELL ── */
+/* ── WATCH SHELL (2× the real 184×224pt screen + bezel) ── */
 .watch-shell{
   position:relative;
-  width:198px;height:242px;
+  width:400px;height:490px;
   background:linear-gradient(150deg,#2e2e2e,#181818);
-  border-radius:66px;
-  box-shadow:0 0 0 1.5px #000,0 28px 70px rgba(0,0,0,.9),inset 0 1px 1px rgba(255,255,255,.06);
+  border-radius:132px;
+  box-shadow:0 0 0 2px #000,0 40px 90px rgba(0,0,0,.95),inset 0 1.5px 2px rgba(255,255,255,.07);
   display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
 }
-.watch-shell::before{content:'';position:absolute;right:-6px;top:48px;width:6px;height:24px;background:#242424;border-radius:0 4px 4px 0}
-.watch-shell::after{content:'';position:absolute;right:-5px;top:80px;width:5px;height:34px;background:#1e1e1e;border-radius:0 3px 3px 0}
+/* crown */
+.watch-shell::before{
+  content:'';position:absolute;right:-11px;top:96px;
+  width:11px;height:48px;background:#2a2a2a;border-radius:0 8px 8px 0;
+}
+/* button */
+.watch-shell::after{
+  content:'';position:absolute;right:-9px;top:162px;
+  width:9px;height:68px;background:#242424;border-radius:0 6px 6px 0;
+}
+
+/* ── SCREEN ── */
 .watch-screen{
-  width:184px;height:224px;border-radius:58px;
+  width:368px;height:448px;
+  border-radius:116px;
   overflow:hidden;background:#000;position:relative;
 }
 
 /* ── SCREENS ── */
 .screen{
-  position:absolute;top:0;left:0;width:100%;height:100%;
+  position:absolute;inset:0;
   display:none;flex-direction:column;background:#000;
   font-family:-apple-system,BlinkMacSystemFont,'SF Pro Rounded','Segoe UI',sans-serif;
 }
 .screen.active{display:flex}
 
-/* shared padding */
-.px{padding:0 6px}
-
 /* top bar */
-.topbar{display:flex;align-items:center;padding:8px 8px 4px;gap:6px}
-.topbar-title{font-size:15px;font-weight:700;color:#e01e24}
+.topbar{display:flex;align-items:center;padding:16px 16px 8px;gap:10px;flex-shrink:0}
+.topbar-title{font-size:28px;font-weight:700;color:#e01e24}
 .back-btn{
-  width:20px;height:20px;border-radius:50%;background:#e01e24;
+  width:36px;height:36px;border-radius:50%;background:#e01e24;
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;flex-shrink:0;border:none;
 }
-.back-btn svg{width:8px;height:8px;fill:#000}
+.back-btn svg{width:14px;height:14px}
 
 /* heat badge */
 .heat{
-  width:24px;height:24px;border-radius:50%;background:#e01e24;
-  display:flex;align-items:center;justify-content:center;font-size:11px;
+  width:44px;height:44px;border-radius:50%;background:#e01e24;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
 }
 
 /* page dots */
-.dots{display:flex;gap:5px;justify-content:center;padding:5px 0;margin-top:auto;flex-shrink:0}
-.dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.35)}
-.dot.active-dot{width:7px;height:7px;background:#fff}
+.dots{display:flex;gap:8px;justify-content:center;padding:10px 0;flex-shrink:0}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);transition:all .2s}
+.dot.active-dot{width:12px;height:12px;background:#fff}
 
-/* ── SCREEN: CHOOSE ── */
-#s-choose{align-items:stretch}
-#s-choose .inner{display:flex;flex-direction:column;align-items:center;flex:1;padding:6px 6px 0}
+/* time display */
+.time-display{
+  position:absolute;top:18px;right:22px;
+  font-size:22px;font-weight:600;color:#fff;opacity:.8;
+}
+
+/* ─── SCREEN: CHOOSE ─── */
+#s-choose .inner{
+  display:flex;flex-direction:column;align-items:center;
+  flex:1;padding:12px 12px 0;overflow:hidden;
+}
+.heat-row{display:flex;width:100%;padding:2px 0}
+.choose-spacer{flex:1;min-height:8px;max-height:32px}
 #idle-state{display:flex;flex-direction:column;align-items:center;width:100%}
-.heat-row{display:flex;padding:2px 0 0;width:100%}
-.choose-spacer{flex:1}
+
 .big-circle-btn{
-  width:88px;height:88px;border-radius:50%;background:none;border:none;
-  align-self:center;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;
+  width:160px;height:160px;border-radius:50%;
+  background:none;border:none;cursor:pointer;
+  position:relative;display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;
 }
 .big-circle-ring{
   position:absolute;inset:0;border-radius:50%;
-  border:3px dashed rgba(255,255,255,.65);
+  border:5px dashed rgba(255,255,255,.6);
 }
 .big-circle-fill{
-  width:66px;height:66px;border-radius:50%;
-  background:#787878;
+  width:124px;height:124px;border-radius:50%;
+  background:#6e6e6e;
   display:flex;align-items:center;justify-content:center;
 }
-.big-circle-fill.cooking{background:#b01519}
-.big-circle-fill.cooking .play-icon{display:none}
-.big-circle-fill.cooking .pause-icon{display:flex}
-.play-icon,.pause-icon{font-size:22px;color:#fff;font-weight:700}
-.pause-icon{display:none;gap:4px}
-.pause-bar{width:5px;height:20px;background:#fff;border-radius:2px}
-.recipe-card-mini{
-  background:#1e1e1e;border-radius:10px;padding:8px 10px;
-  display:flex;align-items:center;gap:8px;cursor:pointer;
-}
-.recipe-card-mini .recipe-icon{font-size:16px}
-.recipe-card-mini .recipe-mini-title{font-size:14px;font-weight:600}
-.recipe-card-mini .recipe-mini-sub{font-size:10px;color:rgba(255,255,255,.65)}
+.play-icon{font-size:44px;color:#fff;line-height:1}
 .tarif-secin-btn{
-  background:#222;border:none;border-radius:10px;color:#c41018;
-  font-size:14px;font-weight:500;width:100%;padding:11px;cursor:pointer;
+  background:#1e1e1e;border:none;border-radius:18px;color:#c41018;
+  font-size:26px;font-weight:500;width:100%;padding:18px;cursor:pointer;
   font-family:inherit;text-align:center;
 }
 
-/* ring progress */
-.ring-wrap{position:relative;width:88px;height:88px;align-self:center}
+/* ring progress (cooking) */
+.ring-wrap{position:relative;width:160px;height:160px;margin-bottom:16px}
 .ring-svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
-.ring-track{fill:none;stroke:rgba(255,255,255,.4);stroke-width:3;stroke-dasharray:14 8}
-.ring-fill{fill:none;stroke:#e01e24;stroke-width:3;stroke-linecap:round;transition:stroke-dasharray .9s linear}
+.ring-track{fill:none;stroke:rgba(255,255,255,.35);stroke-width:5;stroke-dasharray:22 12}
+.ring-fill{fill:none;stroke:#e01e24;stroke-width:5;stroke-linecap:round;transition:stroke-dasharray .9s linear}
 .ring-center{
-  position:absolute;inset:11px;border-radius:50%;background:#b01519;
+  position:absolute;inset:20px;border-radius:50%;background:#b01519;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
 }
-.ring-center svg{width:22px;height:22px;fill:#fff}
+.ring-center svg{width:44px;height:44px;fill:#fff}
 .ring-center.paused{background:#3a7a22}
+#cooking-state{display:none;flex-direction:column;align-items:center;width:100%}
 
-/* ── SCREEN: RECIPES ── */
-#s-recipes .scroll-area{flex:1;overflow-y:auto;padding:4px 6px}
+.recipe-card-mini{
+  background:#1e1e1e;border-radius:16px;padding:14px 16px;
+  display:flex;align-items:center;gap:14px;cursor:pointer;width:100%;
+}
+.recipe-card-mini .recipe-icon{font-size:28px}
+.recipe-card-mini .recipe-mini-title{font-size:22px;font-weight:600}
+.recipe-card-mini .recipe-mini-sub{font-size:16px;color:rgba(255,255,255,.65);margin-top:2px}
+
+/* ─── SCREEN: RECIPES ─── */
+#s-recipes .scroll-area{flex:1;overflow-y:auto;padding:6px 12px}
 .recipe-row{
-  display:flex;align-items:center;gap:10px;background:#262626;border-radius:10px;
-  padding:0 10px;height:42px;margin-bottom:8px;cursor:pointer;
+  display:flex;align-items:center;gap:16px;
+  background:#1e1e1e;border-radius:16px;
+  padding:0 16px;height:72px;margin-bottom:10px;cursor:pointer;
 }
-.recipe-row:hover{background:#2e2e2e}
+.recipe-row:active{background:#2a2a2a}
 .recipe-thumb{
-  width:28px;height:28px;border-radius:6px;
-  display:flex;align-items:center;justify-content:center;font-size:16px;
-  flex-shrink:0;overflow:hidden;
+  width:48px;height:48px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  flex-shrink:0;
 }
-.recipe-thumb img{width:100%;height:100%;object-fit:cover}
-.recipe-row-title{font-size:15px;font-weight:500}
+.recipe-row-title{font-size:26px;font-weight:500}
 
-/* ── SCREEN: DETAIL ── */
+/* ─── SCREEN: DETAIL ─── */
 #s-detail{overflow:hidden}
-#s-detail .scroll-area{flex:1;overflow-y:auto;padding:0 6px 6px}
+#s-detail .scroll-area{flex:1;overflow-y:auto;padding:0 12px 10px}
+.detail-back-bar{display:flex;align-items:center;padding:10px 14px 4px;flex-shrink:0}
 .detail-header{
-  background:#e01e24;border-radius:12px;display:flex;align-items:center;gap:10px;
-  padding:10px 12px;margin-bottom:8px;
+  background:#e01e24;border-radius:20px;display:flex;align-items:center;gap:16px;
+  padding:16px 18px;margin-bottom:12px;
 }
 .detail-hero-thumb{
-  width:48px;height:48px;border-radius:10px;overflow:hidden;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;font-size:26px;
+  width:80px;height:80px;border-radius:16px;overflow:hidden;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:44px;
 }
-.detail-hero-thumb img{width:100%;height:100%;object-fit:cover}
-.detail-title{font-size:17px;font-weight:700}
-.detail-sub{font-size:11px;opacity:.75}
-.chips{display:flex;gap:8px;margin-bottom:8px}
-.chip{flex:1;background:#1e1e1e;border-radius:8px;text-align:center;font-size:13px;font-weight:500;padding:7px 0}
-.expandable{background:#1e1e1e;border-radius:9px;margin-bottom:8px;overflow:hidden}
+.detail-title{font-size:28px;font-weight:700;line-height:1.2}
+.detail-sub{font-size:17px;opacity:.75;margin-top:2px}
+.chips{display:flex;gap:10px;margin-bottom:12px}
+.chip{
+  flex:1;background:#1e1e1e;border-radius:14px;
+  text-align:center;font-size:22px;font-weight:500;padding:12px 0;
+}
+.expandable{background:#1e1e1e;border-radius:16px;margin-bottom:10px;overflow:hidden}
 .expandable-header{
   display:flex;justify-content:space-between;align-items:center;
-  padding:8px 10px;cursor:pointer;font-size:14px;font-weight:500;
+  padding:14px 16px;cursor:pointer;font-size:22px;font-weight:500;
 }
-.expandable-body{padding:6px 11px 8px;font-size:11px;color:rgba(255,255,255,.8);line-height:1.5;display:none}
+.expandable-body{
+  padding:10px 18px 14px;font-size:18px;
+  color:rgba(255,255,255,.8);line-height:1.6;display:none;
+}
 .expandable-body.open{display:block}
 .start-btn{
-  background:#e01e24;border:none;border-radius:11px;color:#fff;
-  font-size:15px;font-weight:700;width:100%;padding:12px;cursor:pointer;
-  font-family:inherit;margin-bottom:8px;
+  background:#e01e24;border:none;border-radius:18px;color:#fff;
+  font-size:26px;font-weight:700;width:100%;padding:20px;cursor:pointer;
+  font-family:inherit;margin-bottom:10px;
 }
 
-/* ── SCREEN: NOTIFICATIONS ── */
-#s-notifs .scroll-area{flex:1;overflow-y:auto;padding:4px 6px}
-.notif-empty{font-size:12px;color:rgba(255,255,255,.35);text-align:center;padding:20px 0}
-.notif-row{border-radius:12px;padding:10px 11px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px}
-.notif-row.started{background:#2a1414;border:1px solid rgba(224,30,36,.25)}
-.notif-row.completed{background:#132213;border:1px solid rgba(34,96,20,.35)}
-.notif-icon{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+/* ─── SCREEN: NOTIFICATIONS ─── */
+#s-notifs .scroll-area{flex:1;overflow-y:auto;padding:6px 12px}
+.notif-empty{font-size:20px;color:rgba(255,255,255,.3);text-align:center;padding:40px 0}
+.notif-row{
+  border-radius:18px;padding:16px 16px;margin-bottom:10px;
+  display:flex;align-items:flex-start;gap:14px;
+}
+.notif-row.started{background:#2a1414;border:1.5px solid rgba(224,30,36,.3)}
+.notif-row.completed{background:#132213;border:1.5px solid rgba(34,96,20,.4)}
+.notif-icon{
+  width:44px;height:44px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:700;color:#fff;
+}
 .notif-icon.s{background:#e01e24}
 .notif-icon.c{background:#3a7a22}
-.notif-text .nt{font-size:12.5px;font-weight:600;line-height:1.3}
-.notif-text .ns{font-size:10.5px;color:rgba(255,255,255,.6);margin-top:2px}
+.notif-text .nt{font-size:20px;font-weight:600;line-height:1.3}
+.notif-text .ns{font-size:17px;color:rgba(255,255,255,.6);margin-top:4px}
 
-/* ── NAV HINT ── */
-.nav-hint{margin-top:16px;font-size:11px;color:#555;text-align:center;line-height:1.6}
+/* ─── TOAST ─── */
+#toast{
+  display:none;position:absolute;bottom:36px;left:20px;right:20px;
+  background:#3a7a22;border-radius:36px;text-align:center;
+  padding:14px 20px;font-size:24px;font-weight:700;z-index:10;
+}
+
+/* ─── NAV HINT ─── */
+.nav-hint{margin-top:24px;font-size:13px;color:#555;text-align:center;line-height:1.8}
 .nav-hint strong{color:#888}
 
-/* time display */
-.time-display{position:absolute;top:10px;right:12px;font-size:13px;font-weight:600;color:#fff;opacity:.85}
+/* mobile: scale down if viewport is narrow */
+@media(max-width:440px){
+  .watch-shell{transform:scale(.82);transform-origin:top center;margin-bottom:-90px}
+}
+@media(max-width:360px){
+  .watch-shell{transform:scale(.68);transform-origin:top center;margin-bottom:-158px}
+}
 </style>
 </head>
 <body>
+
 <h1>Vestel Multicooker</h1>
-<p class="subtitle">Apple Watch SE 44mm – İnteraktif Demo</p>
+<p class="subtitle">Apple Watch SE 44mm · İnteraktif Demo</p>
 
 <div class="watch-shell">
-  <div class="watch-screen" id="watchScreen">
+ <div class="watch-screen" id="watchScreen">
 
-    <!-- ── SCREEN: CHOOSE / COOKING ── -->
-    <div class="screen active" id="s-choose">
-      <span class="time-display" id="clockDisp"></span>
-      <div class="inner">
-        <div class="heat-row"><div class="heat">🔥</div></div>
-        <div class="choose-spacer"></div>
+  <!-- SCREEN: CHOOSE / COOKING -->
+  <div class="screen active" id="s-choose">
+    <span class="time-display" id="clockDisp"></span>
+    <div class="inner">
+      <div class="heat-row"><div class="heat">🔥</div></div>
+      <div class="choose-spacer"></div>
 
-        <!-- Idle state -->
-        <div id="idle-state">
-          <button class="big-circle-btn" onclick="goToRecipes()" style="margin-bottom:10px">
-            <div class="big-circle-ring"></div>
-            <div class="big-circle-fill"><span class="play-icon">▶</span></div>
-          </button>
-          <div style="flex:1"></div>
-          <button class="tarif-secin-btn" onclick="goToRecipes()">Tarif Seçiniz.</button>
-        </div>
-
-        <!-- Cooking state -->
-        <div id="cooking-state" style="display:none;flex-direction:column;align-items:center;width:100%">
-          <div class="ring-wrap" style="margin-bottom:10px">
-            <svg class="ring-svg" viewBox="0 0 88 88">
-              <circle class="ring-track" cx="44" cy="44" r="42"/>
-              <circle class="ring-fill" id="ringFill" cx="44" cy="44" r="42"
-                      stroke-dasharray="0 264" stroke-dashoffset="0"/>
-            </svg>
-            <div class="ring-center" id="ringCenter" onclick="toggleTimer()">
-              <svg id="iconPause" viewBox="0 0 24 24"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>
-              <svg id="iconPlay" viewBox="0 0 24 24" style="display:none"><polygon points="5,3 19,12 5,21"/></svg>
-            </div>
-          </div>
-          <div class="recipe-card-mini" onclick="gotoNotifs()">
-            <span class="recipe-icon" id="cookIcon">🥘</span>
-            <div>
-              <div class="recipe-mini-title" id="cookTitle">Et Sote</div>
-              <div class="recipe-mini-sub" id="cookSub">Kalan süre: 27 dk</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="flex:1;min-height:4px"></div>
-        <div class="dots">
-          <div class="dot active-dot"></div>
-          <div class="dot"></div>
-          <div class="dot"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── SCREEN: RECIPES ── -->
-    <div class="screen" id="s-recipes">
-      <span class="time-display" id="clockDisp2"></span>
-      <div class="topbar"><span class="topbar-title">Tariflerim</span></div>
-      <div class="scroll-area" id="recipeList"></div>
-      <div class="dots">
-        <div class="dot"></div>
-        <div class="dot active-dot"></div>
-        <div class="dot"></div>
-      </div>
-    </div>
-
-    <!-- ── SCREEN: DETAIL ── -->
-    <div class="screen" id="s-detail">
-      <span class="time-display" id="clockDisp3"></span>
-      <div style="display:flex;align-items:center;padding:6px 8px 2px;gap:6px;flex-shrink:0">
-        <button class="back-btn" onclick="backFromDetail()">
-          <svg viewBox="0 0 10 10"><path d="M7 1 L3 5 L7 9" stroke="#000" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      <!-- idle -->
+      <div id="idle-state">
+        <button class="big-circle-btn" onclick="goToRecipes()">
+          <div class="big-circle-ring"></div>
+          <div class="big-circle-fill"><span class="play-icon">▶</span></div>
         </button>
+        <button class="tarif-secin-btn" onclick="goToRecipes()">Tarif Seçiniz.</button>
       </div>
-      <div class="scroll-area">
-        <div class="detail-header">
-          <div class="detail-hero-thumb" id="detailThumb">🥘</div>
-          <div><div class="detail-title" id="detailTitle">Et Sote</div><div class="detail-sub">Tarif ayrıntıları</div></div>
-        </div>
-        <div class="chips">
-          <div class="chip" id="detailDur">30 dk</div>
-          <div class="chip" id="detailCal">400 cal</div>
-        </div>
-        <div class="expandable">
-          <div class="expandable-header" onclick="toggleExp(this)">
-            Hazırlanışı <span>›</span>
-          </div>
-          <div class="expandable-body" id="detailPrep"></div>
-        </div>
-        <div class="expandable">
-          <div class="expandable-header" onclick="toggleExp(this)">
-            Malzemeler <span>›</span>
-          </div>
-          <div class="expandable-body" id="detailIng"></div>
-        </div>
-        <button class="start-btn" onclick="startCooking()">Tarifi Başlat</button>
-        <div class="dots" style="margin-top:0">
-          <div class="dot"></div>
-          <div class="dot active-dot"></div>
-          <div class="dot"></div>
-        </div>
-      </div>
-    </div>
 
-    <!-- ── SCREEN: NOTIFICATIONS ── -->
-    <div class="screen" id="s-notifs">
-      <span class="time-display" id="clockDisp4"></span>
-      <div class="topbar"><span class="topbar-title">Bildirimler</span></div>
-      <div class="scroll-area" id="notifList"></div>
+      <!-- cooking -->
+      <div id="cooking-state">
+        <div class="ring-wrap">
+          <svg class="ring-svg" viewBox="0 0 160 160">
+            <circle class="ring-track" cx="80" cy="80" r="76"/>
+            <circle class="ring-fill" id="ringFill" cx="80" cy="80" r="76"
+                    stroke-dasharray="0 477" stroke-dashoffset="0"/>
+          </svg>
+          <div class="ring-center" id="ringCenter" onclick="toggleTimer()">
+            <svg id="iconPause" viewBox="0 0 24 24"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>
+            <svg id="iconPlay"  viewBox="0 0 24 24" style="display:none"><polygon points="5,3 19,12 5,21"/></svg>
+          </div>
+        </div>
+        <div class="recipe-card-mini" onclick="gotoNotifs()" style="width:100%">
+          <span class="recipe-icon" id="cookIcon">🥘</span>
+          <div>
+            <div class="recipe-mini-title" id="cookTitle">Et Sote</div>
+            <div class="recipe-mini-sub"  id="cookSub">Kalan süre: 27 dk</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:1;min-height:6px"></div>
+    </div>
+    <div class="dots">
+      <div class="dot active-dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: RECIPES -->
+  <div class="screen" id="s-recipes">
+    <span class="time-display" id="clockDisp2"></span>
+    <div class="topbar"><span class="topbar-title">Tariflerim</span></div>
+    <div class="scroll-area" id="recipeList"></div>
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot active-dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: DETAIL -->
+  <div class="screen" id="s-detail">
+    <span class="time-display" id="clockDisp3"></span>
+    <div class="detail-back-bar">
+      <button class="back-btn" onclick="backFromDetail()">
+        <svg viewBox="0 0 14 14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+          <path d="M9 2 L4 7 L9 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="scroll-area">
+      <div class="detail-header">
+        <div class="detail-hero-thumb" id="detailThumb">🥘</div>
+        <div>
+          <div class="detail-title" id="detailTitle">Et Sote</div>
+          <div class="detail-sub">Tarif ayrıntıları</div>
+        </div>
+      </div>
+      <div class="chips">
+        <div class="chip" id="detailDur">30 dk</div>
+        <div class="chip" id="detailCal">400 cal</div>
+      </div>
+      <div class="expandable">
+        <div class="expandable-header" onclick="toggleExp(this)">Hazırlanışı <span>›</span></div>
+        <div class="expandable-body" id="detailPrep"></div>
+      </div>
+      <div class="expandable">
+        <div class="expandable-header" onclick="toggleExp(this)">Malzemeler <span>›</span></div>
+        <div class="expandable-body" id="detailIng"></div>
+      </div>
+      <button class="start-btn" onclick="startCooking()">Tarifi Başlat</button>
       <div class="dots">
         <div class="dot"></div>
-        <div class="dot"></div>
         <div class="dot active-dot"></div>
+        <div class="dot"></div>
       </div>
     </div>
-
-    <!-- TOAST -->
-    <div id="toast" style="
-      display:none;position:absolute;bottom:20px;left:12px;right:12px;
-      background:#3a7a22;border-radius:20px;text-align:center;
-      padding:8px 12px;font-size:13px;font-weight:600;z-index:10;
-    ">Afiyet olsun</div>
   </div>
+
+  <!-- SCREEN: NOTIFICATIONS -->
+  <div class="screen" id="s-notifs">
+    <span class="time-display" id="clockDisp4"></span>
+    <div class="topbar"><span class="topbar-title">Bildirimler</span></div>
+    <div class="scroll-area" id="notifList"></div>
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot active-dot"></div>
+    </div>
+  </div>
+
+  <div id="toast">Afiyet olsun 🎉</div>
+ </div>
 </div>
 
 <div class="nav-hint">
-  <strong>Kaydır:</strong> Ekranlar arası geçiş &nbsp;·&nbsp;
-  <strong>Dokun:</strong> Butonları kullan
+  <strong>◀ ▶ kaydır</strong> ekranlar arası &nbsp;·&nbsp; <strong>dokun</strong> butonları kullan
 </div>
 
 <script>
-// ── DATA ──
 const RECIPES = [
-  { id:0, title:'Et Sote',          icon:'🥘', dur:'30 dk', cal:'400 cal', durationMin:30,
+  { id:0, title:'Et Sote',         icon:'🥘', dur:'30 dk', cal:'400 cal', durationMin:30,
     prep:['Et ve sebzeleri yerleştir.','Süreyi onayla ve başlat.'],
     ing:['250 g kuşbaşı et','1 soğan, 1 biber','Domates salçası, baharat'] },
-  { id:1, title:'Taze Fasulye',      icon:'🫘', dur:'26 dk', cal:'220 cal', durationMin:26,
+  { id:1, title:'Taze Fasulye',    icon:'🫘', dur:'26 dk', cal:'220 cal', durationMin:26,
     prep:['Malzemeleri tencereye ekle.','Suyu ve baharatı ayarla.'],
     ing:['500 g taze fasulye','Domates, soğan','Zeytinyağı, tuz'] },
-  { id:2, title:'Kabak Yemeği',      icon:'🥬', dur:'22 dk', cal:'180 cal', durationMin:22,
+  { id:2, title:'Kabak Yemeği',    icon:'🥬', dur:'22 dk', cal:'180 cal', durationMin:22,
     prep:['Kabakları doğra.','Kısa pişirme programını seç.'],
     ing:['3 kabak','Havuç, dereotu','Yoğurtlu servis'] },
-  { id:3, title:'Garnitürlü Pilav',  icon:'🍚', dur:'18 dk', cal:'280 cal', durationMin:18,
+  { id:3, title:'Garnitürlü Pilav',icon:'🍚', dur:'18 dk', cal:'280 cal', durationMin:18,
     prep:['Pirinci ve garnitürü ekle.','Pişirme süresini başlat.'],
     ing:['1 su bardağı pirinç','Garnitür, bezelye','Tereyağı, tuz'] },
-  { id:4, title:'Humus',             icon:'🫙', dur:'12 dk', cal:'160 cal', durationMin:12,
+  { id:4, title:'Humus',           icon:'🫙', dur:'12 dk', cal:'160 cal', durationMin:12,
     prep:['Nohutu ve tahini ekle.','Karıştırıp kıvam ver.'],
     ing:['2 su bardağı nohut','Tahin, limon, sarımsak','Zeytinyağı, kimyon'] },
-  { id:5, title:'Mercimek Çorbası',  icon:'🍲', dur:'25 dk', cal:'150 cal', durationMin:25,
+  { id:5, title:'Mercimek Çorbası',icon:'🍲', dur:'25 dk', cal:'150 cal', durationMin:25,
     prep:['Mercimek ve sebzeleri ekle.','Çorba programını başlat.'],
     ing:['1 su bardağı kırmızı mercimek','Soğan, havuç','Salça, tereyağı, baharat'] },
 ];
 
-// ── STATE ──
 let currentScreen = 'choose';
 let selectedRecipe = RECIPES[0];
 let isCooking = false;
 let timerRunning = false;
 let elapsedSeconds = 0;
-let totalDemoSeconds = 15; // demo is 15s = full recipe
+const TOTAL_DEMO = 15;           // 15 s = full recipe in demo
+const CIRC = 2 * Math.PI * 76;  // r=76
 let timerInterval = null;
 let notifications = [];
 
 // ── CLOCK ──
-function updateClock() {
+function updateClock(){
   const now = new Date();
-  const t = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
-  ['clockDisp','clockDisp2','clockDisp3','clockDisp4'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = t;
+  const t = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  ['clockDisp','clockDisp2','clockDisp3','clockDisp4'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent=t;
   });
 }
-setInterval(updateClock, 10000);
-updateClock();
+setInterval(updateClock,30000); updateClock();
 
-// ── SCREEN NAVIGATION ──
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('s-' + id).classList.add('active');
-  currentScreen = id;
+// ── NAVIGATION ──
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  currentScreen=id;
 }
-
-function goToRecipes()  { showScreen('recipes'); buildRecipeList(); }
-function gotoNotifs()   { showScreen('notifs');  buildNotifList(); }
+function goToRecipes() { showScreen('recipes'); buildRecipeList(); }
+function gotoNotifs()  { showScreen('notifs');  buildNotifList();  }
 function backFromDetail(){ showScreen('recipes'); }
 
 // ── SWIPE ──
-let touchStartX = 0, touchStartY = 0;
-const ws = document.getElementById('watchScreen');
-ws.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; });
-ws.addEventListener('touchend',   e => {
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  const dy = e.changedTouches[0].clientY - touchStartY;
-  if (Math.abs(dx) < Math.abs(dy) * 1.2) return;
-  if (Math.abs(dx) < 30) return;
-  const pages = ['choose','recipes','notifs'];
-  const cur = pages.indexOf(currentScreen);
-  if (cur === -1) return;
-  if (dx < 0 && cur < pages.length - 1) { // swipe left → next
-    const next = pages[cur + 1];
-    showScreen(next);
-    if (next === 'recipes')  buildRecipeList();
-    if (next === 'notifs')   buildNotifList();
-  } else if (dx > 0 && cur > 0) { // swipe right → prev
-    showScreen(pages[cur - 1]);
-  }
+let tx=0, ty=0;
+const ws=document.getElementById('watchScreen');
+ws.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+ws.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+  if(Math.abs(dx)<Math.abs(dy)*1.2||Math.abs(dx)<40) return;
+  const pages=['choose','recipes','notifs'], cur=pages.indexOf(currentScreen);
+  if(cur===-1) return;
+  if(dx<0&&cur<pages.length-1){ const n=pages[cur+1]; showScreen(n); if(n==='recipes') buildRecipeList(); if(n==='notifs') buildNotifList(); }
+  else if(dx>0&&cur>0) showScreen(pages[cur-1]);
 });
 
-// ── BUILD RECIPE LIST ──
-function buildRecipeList() {
-  const list = document.getElementById('recipeList');
-  list.innerHTML = '';
-  RECIPES.forEach(r => {
-    const row = document.createElement('div');
-    row.className = 'recipe-row';
-    row.innerHTML = `<div class="recipe-thumb"><span style="font-size:16px">${r.icon}</span></div>
-                     <span class="recipe-row-title">${r.title}</span>`;
-    row.onclick = () => openDetail(r);
-    list.appendChild(row);
+// mouse drag for desktop
+let mx=0, dragging=false;
+ws.addEventListener('mousedown',e=>{mx=e.clientX;dragging=true;});
+window.addEventListener('mouseup',e=>{
+  if(!dragging) return; dragging=false;
+  const dx=e.clientX-mx;
+  if(Math.abs(dx)<50) return;
+  const pages=['choose','recipes','notifs'], cur=pages.indexOf(currentScreen);
+  if(cur===-1) return;
+  if(dx<0&&cur<pages.length-1){ const n=pages[cur+1]; showScreen(n); if(n==='recipes') buildRecipeList(); if(n==='notifs') buildNotifList(); }
+  else if(dx>0&&cur>0) showScreen(pages[cur-1]);
+});
+
+// ── RECIPE LIST ──
+function buildRecipeList(){
+  const list=document.getElementById('recipeList'); list.innerHTML='';
+  RECIPES.forEach(r=>{
+    const row=document.createElement('div'); row.className='recipe-row';
+    row.innerHTML=`<div class="recipe-thumb"><span>${r.icon}</span></div><span class="recipe-row-title">${r.title}</span>`;
+    row.onclick=()=>openDetail(r); list.appendChild(row);
   });
 }
 
 // ── DETAIL ──
-function openDetail(r) {
-  selectedRecipe = r;
-  document.getElementById('detailThumb').innerHTML = `<span style="font-size:26px">${r.icon}</span>`;
-  document.getElementById('detailTitle').textContent = r.title;
-  document.getElementById('detailDur').textContent = r.dur;
-  document.getElementById('detailCal').textContent = r.cal;
-  document.getElementById('detailPrep').innerHTML = r.prep.map(l => `• ${l}<br>`).join('');
-  document.getElementById('detailIng').innerHTML  = r.ing.map(l => `• ${l}<br>`).join('');
+function openDetail(r){
+  selectedRecipe=r;
+  document.getElementById('detailThumb').innerHTML=`<span style="font-size:44px">${r.icon}</span>`;
+  document.getElementById('detailTitle').textContent=r.title;
+  document.getElementById('detailDur').textContent=r.dur;
+  document.getElementById('detailCal').textContent=r.cal;
+  document.getElementById('detailPrep').innerHTML=r.prep.map(l=>`• ${l}<br>`).join('');
+  document.getElementById('detailIng').innerHTML =r.ing.map(l =>`• ${l}<br>`).join('');
+  document.querySelectorAll('.expandable-body').forEach(b=>{b.classList.remove('open'); b.previousElementSibling.querySelector('span').textContent='›';});
   showScreen('detail');
 }
-
-function toggleExp(header) {
-  const body = header.nextElementSibling;
-  const arrow = header.querySelector('span');
-  body.classList.toggle('open');
-  arrow.textContent = body.classList.contains('open') ? '˅' : '›';
+function toggleExp(header){
+  const body=header.nextElementSibling, arrow=header.querySelector('span');
+  body.classList.toggle('open'); arrow.textContent=body.classList.contains('open')?'˅':'›';
 }
 
 // ── COOKING ──
-function startCooking() {
-  if (isCooking) return;
-  isCooking = true;
-  elapsedSeconds = 0;
-  timerRunning = true;
-  notifications.push({ type:'started', recipe: selectedRecipe, time: new Date() });
-
-  document.getElementById('cookIcon').textContent  = selectedRecipe.icon;
-  document.getElementById('cookTitle').textContent = selectedRecipe.title;
-
-  document.getElementById('idle-state').style.display    = 'none';
-  document.getElementById('cooking-state').style.display = 'flex';
-
-  showScreen('choose');
-  updateCookingUI();
+function startCooking(){
+  if(isCooking) return;
+  isCooking=true; elapsedSeconds=0; timerRunning=true;
+  notifications.push({type:'started',recipe:selectedRecipe});
+  document.getElementById('cookIcon').textContent =selectedRecipe.icon;
+  document.getElementById('cookTitle').textContent=selectedRecipe.title;
+  document.getElementById('idle-state').style.display='none';
+  document.getElementById('cooking-state').style.display='flex';
+  showScreen('choose'); updateCookingUI();
   clearInterval(timerInterval);
-  timerInterval = setInterval(tick, 1000);
+  timerInterval=setInterval(tick,1000);
 }
-
-function tick() {
-  if (!timerRunning) return;
+function tick(){
+  if(!timerRunning) return;
   elapsedSeconds++;
   updateCookingUI();
-  if (elapsedSeconds >= totalDemoSeconds) {
-    clearInterval(timerInterval);
-    timerRunning = false;
-    cookingComplete();
-  }
+  if(elapsedSeconds>=TOTAL_DEMO){ clearInterval(timerInterval); timerRunning=false; cookingComplete(); }
 }
-
-function updateCookingUI() {
-  const progress = Math.min(elapsedSeconds / totalDemoSeconds, 1);
-  const circumference = 2 * Math.PI * 42; // r=42
-  const filled = progress * circumference;
-  document.getElementById('ringFill').setAttribute('stroke-dasharray', `${filled} ${circumference - filled}`);
-
-  const remaining = Math.max(0, Math.ceil((1 - progress) * selectedRecipe.durationMin));
-  document.getElementById('cookSub').textContent = elapsedSeconds >= totalDemoSeconds
-    ? 'Tamamlandı' : `Kalan süre: ${remaining} dk`;
-
-  const center = document.getElementById('ringCenter');
-  center.classList.toggle('paused', !timerRunning);
-  document.getElementById('iconPause').style.display = timerRunning ? '' : 'none';
-  document.getElementById('iconPlay').style.display  = timerRunning ? 'none' : '';
+function updateCookingUI(){
+  const prog=Math.min(elapsedSeconds/TOTAL_DEMO,1);
+  const filled=prog*CIRC;
+  document.getElementById('ringFill').setAttribute('stroke-dasharray',`${filled} ${CIRC-filled}`);
+  const rem=Math.max(0,Math.ceil((1-prog)*selectedRecipe.durationMin));
+  document.getElementById('cookSub').textContent=elapsedSeconds>=TOTAL_DEMO?'Tamamlandı':`Kalan süre: ${rem} dk`;
+  const center=document.getElementById('ringCenter');
+  center.classList.toggle('paused',!timerRunning);
+  document.getElementById('iconPause').style.display=timerRunning?'':'none';
+  document.getElementById('iconPlay').style.display =timerRunning?'none':'';
 }
-
-function toggleTimer() {
-  if (!isCooking) return;
-  timerRunning = !timerRunning;
-  if (timerRunning) {
-    clearInterval(timerInterval);
-    timerInterval = setInterval(tick, 1000);
-  }
+function toggleTimer(){
+  if(!isCooking) return;
+  timerRunning=!timerRunning;
+  if(timerRunning){ clearInterval(timerInterval); timerInterval=setInterval(tick,1000); }
   updateCookingUI();
 }
-
-function cookingComplete() {
-  isCooking = false;
-  notifications.push({ type:'completed', recipe: selectedRecipe, time: new Date() });
-
-  const toast = document.getElementById('toast');
-  toast.style.display = 'block';
-  setTimeout(() => {
-    toast.style.display = 'none';
-    // Reset choose screen to idle
-    document.getElementById('idle-state').style.display    = 'flex';
-    document.getElementById('cooking-state').style.display = 'none';
-    document.getElementById('ringFill').setAttribute('stroke-dasharray','0 264');
-  }, 2200);
+function cookingComplete(){
+  isCooking=false;
+  notifications.push({type:'completed',recipe:selectedRecipe});
+  const toast=document.getElementById('toast');
+  toast.style.display='block';
+  setTimeout(()=>{
+    toast.style.display='none';
+    document.getElementById('idle-state').style.display='flex';
+    document.getElementById('cooking-state').style.display='none';
+    document.getElementById('ringFill').setAttribute('stroke-dasharray',`0 ${CIRC}`);
+  },2200);
 }
 
 // ── NOTIFICATIONS ──
-function buildNotifList() {
-  const list = document.getElementById('notifList');
-  list.innerHTML = '';
-  if (notifications.length === 0) {
-    list.innerHTML = '<div class="notif-empty">Henüz bildirim yok</div>';
-    return;
-  }
-  [...notifications].reverse().forEach(n => {
-    const isC = n.type === 'completed';
-    const div = document.createElement('div');
-    div.className = 'notif-row ' + (isC ? 'completed' : 'started');
-    div.innerHTML = `
-      <div class="notif-icon ${isC ? 'c' : 's'}">${isC ? '✓' : '▶'}</div>
+function buildNotifList(){
+  const list=document.getElementById('notifList'); list.innerHTML='';
+  if(!notifications.length){ list.innerHTML='<div class="notif-empty">Henüz bildirim yok</div>'; return; }
+  [...notifications].reverse().forEach(n=>{
+    const isC=n.type==='completed';
+    const div=document.createElement('div');
+    div.className='notif-row '+(isC?'completed':'started');
+    div.innerHTML=`<div class="notif-icon ${isC?'c':'s'}">${isC?'✓':'▶'}</div>
       <div class="notif-text">
-        <div class="nt">${isC ? n.recipe.title + ' hazır!' : n.recipe.title + ' pişmeye başladı'}</div>
-        <div class="ns">${isC ? 'Afiyet olsun 🎉' : 'Pişirme ekranına dön'}</div>
+        <div class="nt">${isC?n.recipe.title+' hazır!':n.recipe.title+' pişmeye başladı'}</div>
+        <div class="ns">${isC?'Afiyet olsun 🎉':'Pişirme ekranına dön'}</div>
       </div>`;
-    if (!isC) div.style.cursor = 'pointer';
-    if (!isC) div.onclick = () => showScreen('choose');
+    if(!isC){ div.style.cursor='pointer'; div.onclick=()=>showScreen('choose'); }
     list.appendChild(div);
   });
 }
