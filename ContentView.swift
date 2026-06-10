@@ -7,7 +7,6 @@ private func playTapFeedback(_ haptic: WKHapticType = .click) {
 
 struct ContentView: View {
     private enum RootScreen {
-        case launch
         case recipePager
         case detail
     }
@@ -19,7 +18,7 @@ struct ContentView: View {
     }
 
     @Environment(\.scenePhase) private var scenePhase
-    @State private var screen: RootScreen = .launch
+    @State private var screen: RootScreen = .recipePager
     @State private var recipePagerSelection: RecipePagerPage = .recipes
     @State private var selectedRecipe: Recipe = .etSote
     @State private var showLaunchSplash = true
@@ -71,10 +70,12 @@ struct ContentView: View {
             guard !didScheduleSplashDismissal else { return }
             didScheduleSplashDismissal = true
 
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
             await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.28)) {
+                withAnimation(.easeInOut(duration: 0.35)) {
                     showLaunchSplash = false
+                    recipePagerSelection = .choose
+                    screen = .recipePager
                 }
             }
         }
@@ -89,16 +90,6 @@ struct ContentView: View {
     @ViewBuilder
     private var screenView: some View {
         switch screen {
-        case .launch:
-            ChooseRecipePage(
-                onChoose: {
-                    playTapFeedback()
-                    withAnimation(.easeInOut(duration: 0.28)) {
-                        recipePagerSelection = .recipes
-                        screen = .recipePager
-                    }
-                }
-            )
         case .recipePager:
             TabView(selection: $recipePagerSelection) {
                 TarifSecPage(
