@@ -116,6 +116,9 @@ struct ContentView: View {
                     },
                     onCookingComplete: {
                         isCooking = false
+                        cookingNotifications.append(
+                            CookingNotificationItem(recipe: selectedRecipe, timestamp: Date(), type: .completed)
+                        )
                         withAnimation(.easeInOut(duration: 0.3)) {
                             showCookingDoneToast = true
                         }
@@ -185,7 +188,7 @@ struct ContentView: View {
                     cookingHasStarted = false
                     isCooking = true
                     cookingNotifications.append(
-                        CookingNotificationItem(recipe: selectedRecipe, timestamp: Date())
+                        CookingNotificationItem(recipe: selectedRecipe, timestamp: Date(), type: .started)
                     )
                     withAnimation(.easeInOut(duration: 0.28)) {
                         recipePagerSelection = .choose
@@ -333,10 +336,16 @@ enum Recipe: String, CaseIterable, Identifiable {
 
 // MARK: - Cooking Notification
 
+enum CookingNotificationType {
+    case started
+    case completed
+}
+
 struct CookingNotificationItem: Identifiable {
     let id = UUID()
     let recipe: Recipe
     let timestamp: Date
+    let type: CookingNotificationType
 }
 
 struct RecipeTheme {
@@ -416,15 +425,16 @@ struct PageDots: View {
     let count: Int
 
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 5) {
             ForEach(0..<count, id: \.self) { index in
                 Circle()
-                    .fill(index == activeIndex ? Color.white : Color.white.opacity(0.28))
-                    .frame(width: 5, height: 5)
+                    .fill(index == activeIndex ? Color.white : Color.white.opacity(0.38))
+                    .frame(width: index == activeIndex ? 7 : 5, height: index == activeIndex ? 7 : 5)
+                    .animation(.easeInOut(duration: 0.2), value: activeIndex)
             }
         }
-        .padding(.top, 2)
-        .padding(.bottom, 2)
+        .padding(.top, 4)
+        .padding(.bottom, 4)
         .accessibilityHidden(true)
     }
 
@@ -1172,6 +1182,74 @@ struct ChooseRecipePage: View {
     }
 }
 
+struct NotificationRow: View {
+    let notif: CookingNotificationItem
+    let onReturnToCooking: () -> Void
+
+    private var isCompleted: Bool { notif.type == .completed }
+
+    var body: some View {
+        let content = HStack(spacing: 10) {
+            if isCompleted {
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 0.22, green: 0.60, blue: 0.14))
+                        .frame(width: 26, height: 26)
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+            } else {
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 0.86, green: 0.12, blue: 0.16))
+                        .frame(width: 26, height: 26)
+                    Image(systemName: "play.fill")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(isCompleted
+                     ? "\(notif.recipe.title) hazır!"
+                     : "\(notif.recipe.title) pişmeye başladı")
+                    .font(.system(size: 12.5, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(isCompleted ? "Afiyet olsun 🎉" : "Pişirme ekranına dön")
+                    .font(.system(size: 10.5, weight: .regular, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.62))
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 11)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(isCompleted
+                      ? Color(red: 0.13, green: 0.22, blue: 0.12)
+                      : Color(red: 0.18, green: 0.14, blue: 0.14))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(isCompleted
+                        ? Color(red: 0.22, green: 0.60, blue: 0.14).opacity(0.35)
+                        : Color(red: 0.86, green: 0.12, blue: 0.16).opacity(0.25),
+                        lineWidth: 1)
+        )
+
+        if isCompleted {
+            content
+        } else {
+            Button(action: onReturnToCooking) { content }
+                .buttonStyle(.plain)
+        }
+    }
+}
+
 struct NotificationsPage: View {
     let recipe: Recipe
     let notifications: [CookingNotificationItem]
@@ -1188,82 +1266,19 @@ struct NotificationsPage: View {
 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 8) {
-                        // Dynamic cooking notifications
-                        ForEach(notifications.reversed()) { notif in
-                            Button(action: onReturnToCooking) {
-                                HStack(spacing: 10) {
-                                    RecipeThumbnail(recipe: notif.recipe, size: 22)
-
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("\(notif.recipe.title) pişmeye başladı")
-                                            .font(.system(size: 13, weight: .medium, design: .rounded))
-                                            .foregroundStyle(.white)
-                                            .multilineTextAlignment(.leading)
-                                            .fixedSize(horizontal: false, vertical: true)
-
-                                        Text("Pişirme ekranına dön")
-                                            .font(.system(size: 10.5, weight: .regular, design: .rounded))
-                                            .foregroundStyle(.white.opacity(0.68))
-                                    }
-
-                                    Spacer(minLength: 0)
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 10)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                        .fill(Color(red: 0.18, green: 0.18, blue: 0.18))
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-
                         if notifications.isEmpty {
-                            Button(action: onOpenRecipe) {
-                                HStack(spacing: 10) {
-                                    RecipeThumbnail(recipe: recipe, size: 22)
-
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(recipe.notificationText)
-                                            .font(.system(size: 13.5, weight: .medium, design: .rounded))
-                                            .foregroundStyle(.white)
-                                            .multilineTextAlignment(.leading)
-                                            .fixedSize(horizontal: false, vertical: true)
-
-                                        Text("Yeni durum kartını aç")
-                                            .font(.system(size: 10.5, weight: .regular, design: .rounded))
-                                            .foregroundStyle(.white.opacity(0.68))
-                                    }
-
-                                    Spacer(minLength: 0)
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 12)
-                                .frame(maxWidth: .infinity, minHeight: 66, alignment: .leading)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                        .fill(Color(red: 0.18, green: 0.18, blue: 0.18))
+                            Text("Henüz bildirim yok")
+                                .font(.system(size: 12, weight: .regular, design: .rounded))
+                                .foregroundStyle(.white.opacity(0.4))
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 20)
+                        } else {
+                            ForEach(notifications.reversed()) { notif in
+                                NotificationRow(
+                                    notif: notif,
+                                    onReturnToCooking: onReturnToCooking
                                 )
                             }
-                            .buttonStyle(.plain)
-
-                            Button(action: onReturnToCooking) {
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text(recipe.alertText)
-                                        .font(.system(size: 12.5, weight: .regular, design: .rounded))
-                                        .foregroundStyle(.white.opacity(0.82))
-                                        .multilineTextAlignment(.leading)
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 10)
-                                .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                        .fill(Color(red: 0.10, green: 0.10, blue: 0.10))
-                                )
-                            }
-                            .buttonStyle(.plain)
                         }
                     }
                     .padding(.top, 4)
