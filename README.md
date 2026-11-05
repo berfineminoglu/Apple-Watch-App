@@ -1,41 +1,53 @@
 # Vestel Multicooker Watch
 
-Bu proje bir watchOS uygulamasıdır. Uygulamayı Xcode ile veya terminal üzerinden simülatörde çalıştırabilirsiniz.
+A watchOS app for controlling a smart multicooker from an Apple Watch, designed in a Human-Computer Interaction (HCI) course. The interface is built around quick glances and minimal interaction on a small screen.
 
-## Gereksinimler
+## Features
 
-- Xcode kurulu olmalı
-- watchOS Simulator açık olmalı
+- Browse and choose recipes, with a confirmation step before cooking starts
+- Live cooking screen with heat level and status
+- Notifications page for cooking events
+- Settings page
 
-## Xcode ile çalıştırma
+## Tech stack
 
-1. `VestelMulticookerWatch.xcodeproj` dosyasını Xcode ile açın.
-2. Scheme olarak `VestelMulticookerWatch` seçin.
-3. Target olarak bir watchOS Simulator seçin.
-4. Run düğmesine basın.
+Swift, SwiftUI, watchOS
 
-## Terminal ile derleme
+## Requirements
+
+- Xcode
+- A watchOS Simulator
+
+## Running with Xcode
+
+1. Open `VestelMulticookerWatch.xcodeproj` in Xcode.
+2. Select the `VestelMulticookerWatch` scheme.
+3. Choose a watchOS Simulator as the target.
+4. Press Run.
+
+## Building from the terminal
 
 ```zsh
-xcodebuild -scheme VestelMulticookerWatch -workspace VestelMulticookerWatch.xcodeproj/project.xcworkspace -destination 'platform=watchOS Simulator,id=AE1A24E5-736D-42DC-8F47-84D1FA506F48' build
+xcodebuild -scheme VestelMulticookerWatch -workspace VestelMulticookerWatch.xcodeproj/project.xcworkspace -destination 'platform=watchOS Simulator,name=<simulator name>' build
 ```
 
-## Terminal ile simülatörde çalıştırma
+## Running on the simulator from the terminal
 
-Önce uygulama bundle yolunu ayarlayın:
+Set the app bundle path first:
 
 ```zsh
-APP_PATH="$HOME/Library/Developer/Xcode/DerivedData/VestelMulticookerWatch-fdikuwqjhwdgqqevetzcbgrznhzu/Build/Products/Debug-watchsimulator/VestelMulticookerWatch.app"
+APP_PATH="$HOME/Library/Developer/Xcode/DerivedData/VestelMulticookerWatch-<id>/Build/Products/Debug-watchsimulator/VestelMulticookerWatch.app"
 BUNDLE_ID="com.berfin.vestelmulticooker.watchkitapp"
 ```
 
-Sonra uygulamayı simülatöre kurup açın:
+Then install and launch the app:
 
 ```zsh
 xcrun simctl install booted "$APP_PATH" && xcrun simctl launch booted "$BUNDLE_ID"
 ```
 
-## Not
+To find the correct DerivedData path after a build:
 
-- `APP_PATH` içindeki DerivedData klasörü, Xcode derleme yaptıktan sonra değişebilir.
-- Gerekirse doğru yolu bulmak için `find ~/Library/Developer/Xcode/DerivedData -path '*VestelMulticookerWatch.app' -print` komutunu kullanın.
+```zsh
+find ~/Library/Developer/Xcode/DerivedData -path '*VestelMulticookerWatch.app' -print
+```
